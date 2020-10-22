@@ -70,7 +70,8 @@ function remove_deprecated_flag() {
       v = "false"
     }
     /^ \* @deprecated/ { v = "true" }
-    /^ \* *(\*/ *)?$/ { v = "false" }
+    /^ \* *$/ { v = "false" }
+    /^ \*\/ *$/ { v = "false" }
     {
       if (v == "false") print $0
       else print "//" $0
@@ -85,6 +86,7 @@ function write_commit_hash() {
 }
 
 git checkout upstream-master
+git merge scripts-master
 rm -rf "$SRC_DIR"
 mkdir -p "$SRC_DIR"
 
@@ -94,7 +96,7 @@ write_commit_hash
 
 cd "$REPO_DIR"
 git add "."
-git commit -m "sync with $COMMIT_HASH"
+git commit -m "sync with $COMMIT_HASH" --allow-empty
 git checkout -b "automatic-changes"
 
 move_module_info
@@ -116,6 +118,6 @@ git add "."
 git commit -m "remove deprecated flag"
 
 git checkout master
-git merge --no-ff automatic-change
+git merge --no-ff automatic-changes
 
 rm -rf "$WORKDIR"
