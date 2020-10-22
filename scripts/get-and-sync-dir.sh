@@ -72,7 +72,7 @@ function remove_deprecated_flag() {
       v = "false"
     }
     /^ \* @deprecated/ { v = "true" }
-    /^ \* *$/ { v = "false" }
+    /^ \* *(\*/ *)?$/ { v = "false" }
     {
       if (v == "false") print $0
       else print "//" $0
