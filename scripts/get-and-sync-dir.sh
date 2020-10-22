@@ -16,9 +16,7 @@ SRC_DIR="$REPO_DIR/src/main/java"
 OUTPUT_DIR="$SRC_DIR/com/anatawa12/nashorn"
 
 rm -rf "$WORKDIR"
-rm -rf "$SRC_DIR"
 mkdir -p "$WORKDIR"
-mkdir -p "$SRC_DIR"
 
 function get_sources() {
   echo "getting source..."
@@ -73,6 +71,7 @@ function remove_deprecated_flag() {
     }
     /^ \* @deprecated/ { v = "true" }
     /^ \* *$/ { v = "false" }
+    /^ \*\/ *$/ { v = "false" }
     {
       if (v == "false") print $0
       else print "//" $0
@@ -87,6 +86,9 @@ function write_commit_hash() {
 }
 
 git checkout upstream-master
+git merge scripts-master
+rm -rf "$SRC_DIR"
+mkdir -p "$SRC_DIR"
 
 get_sources
 move_sources
@@ -94,7 +96,7 @@ write_commit_hash
 
 cd "$REPO_DIR"
 git add "."
-git commit -m "sync with $COMMIT_HASH"
+git commit -m "sync with $COMMIT_HASH" --allow-empty
 git checkout -b "automatic-changes"
 
 move_module_info
@@ -116,6 +118,6 @@ git add "."
 git commit -m "remove deprecated flag"
 
 git checkout master
-git merge --no-ff automatic-change
+git merge --no-ff automatic-changes
 
 rm -rf "$WORKDIR"
