@@ -16,9 +16,7 @@ SRC_DIR="$REPO_DIR/src/main/java"
 OUTPUT_DIR="$SRC_DIR/com/anatawa12/nashorn"
 
 rm -rf "$WORKDIR"
-rm -rf "$SRC_DIR"
 mkdir -p "$WORKDIR"
-mkdir -p "$SRC_DIR"
 
 function get_sources() {
   echo "getting source..."
@@ -87,6 +85,8 @@ function write_commit_hash() {
 }
 
 git checkout upstream-master
+rm -rf "$SRC_DIR"
+mkdir -p "$SRC_DIR"
 
 get_sources
 move_sources
