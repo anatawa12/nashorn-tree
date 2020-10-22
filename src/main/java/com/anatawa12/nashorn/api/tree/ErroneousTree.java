@@ -28,11 +28,10 @@ package com.anatawa12.nashorn.api.tree;
 /**
  * A tree node to stand in for a malformed expression.
  *
- * @deprecated Nashorn JavaScript script engine and APIs, and the jjs tool
- * are deprecated with the intent to remove them in a future release.
+// * @deprecated Nashorn JavaScript script engine and APIs, and the jjs tool
+// * are deprecated with the intent to remove them in a future release.
  *
  * @since 9
  */
-@Deprecated(since="11", forRemoval=true)
 public interface ErroneousTree extends ExpressionTree {
 }

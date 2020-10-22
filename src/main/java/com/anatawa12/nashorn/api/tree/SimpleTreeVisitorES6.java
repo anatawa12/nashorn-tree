@@ -42,8 +42,8 @@ import java.util.List;
  * subclasses with {@link java.lang.Override @Override} will help
  * ensure that methods are overridden as intended.
  *
- * @deprecated Nashorn JavaScript script engine and APIs, and the jjs tool
- * are deprecated with the intent to remove them in a future release.
+// * @deprecated Nashorn JavaScript script engine and APIs, and the jjs tool
+// * are deprecated with the intent to remove them in a future release.
  *
  * @param <R> the return type of this visitor's methods.  Use {@link
  *            Void} for visitors that do not need to return results.
@@ -51,7 +51,6 @@ import java.util.List;
  *            methods.  Use {@code Void} for visitors that do not need an
  *            additional parameter.
  */
-@Deprecated(since="11", forRemoval=true)
 public class SimpleTreeVisitorES6<R, P> extends SimpleTreeVisitorES5_1<R, P> {
     @Override
     public R visitCompilationUnit(final CompilationUnitTree node, final P r) {

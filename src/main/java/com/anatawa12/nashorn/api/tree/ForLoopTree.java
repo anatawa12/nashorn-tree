@@ -34,12 +34,11 @@ package com.anatawa12.nashorn.api.tree;
  *       <em>statement</em>
  * </pre>
  *
- * @deprecated Nashorn JavaScript script engine and APIs, and the jjs tool
- * are deprecated with the intent to remove them in a future release.
+// * @deprecated Nashorn JavaScript script engine and APIs, and the jjs tool
+// * are deprecated with the intent to remove them in a future release.
  *
  * @since 9
  */
-@Deprecated(since="11", forRemoval=true)
 public interface ForLoopTree extends ConditionalLoopTree {
     /**
      * Returns the initializer expression of this 'for' statement.
