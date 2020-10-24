@@ -10,5 +10,6 @@ repositories {
 }
 
 dependencies {
+    implementation("org.jruby.joni:joni:2.1.40")
     testCompile("junit", "junit", "4.12")
 }

@@ -25,13 +25,16 @@
 
 package com.anatawa12.nashorn.internal.runtime.regexp;
 
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import com.anatawa12.nashorn.internal.runtime.ParserException;
-import com.anatawa12.nashorn.internal.runtime.regexp.joni.Option;
-import com.anatawa12.nashorn.internal.runtime.regexp.joni.Regex;
-import com.anatawa12.nashorn.internal.runtime.regexp.joni.Syntax;
-import com.anatawa12.nashorn.internal.runtime.regexp.joni.exception.JOniException;
+import org.jcodings.Encoding;
+import org.jcodings.specific.UTF16BEEncoding;
+import org.joni.Option;
+import org.joni.Regex;
+import org.joni.Syntax;
+import org.joni.exception.JOniException;
 
 /**
  * Regular expression implementation based on the Joni engine from the JRuby project.
@@ -70,8 +73,9 @@ public class JoniRegExp extends RegExp {
                 throw e;
             }
 
-            final char[] javaPattern = parsed.getJavaPattern().toCharArray();
-            new Regex(javaPattern, 0, javaPattern.length, option, Syntax.JAVASCRIPT);
+            Encoding encode = UTF16BEEncoding.INSTANCE;
+            final byte[] javaPattern = parsed.getJavaPattern().getBytes(StandardCharsets.UTF_16BE);
+            new Regex(javaPattern, 0, javaPattern.length, option, encode, Syntax.ECMAScript);
         } catch (final PatternSyntaxException | JOniException e2) {
             throwParserException("syntax", e2.getMessage());
         } catch (StackOverflowError e3) {
