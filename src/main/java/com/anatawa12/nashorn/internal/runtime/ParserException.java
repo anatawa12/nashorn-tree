@@ -26,7 +26,6 @@
 package com.anatawa12.nashorn.internal.runtime;
 
 import com.anatawa12.nashorn.api.scripting.NashornException;
-import com.anatawa12.nashorn.internal.objects.Global;
 import com.anatawa12.nashorn.internal.parser.Token;
 
 /**
@@ -100,19 +99,5 @@ public final class ParserException extends NashornException {
         return errorType;
     }
 
-    /**
-     * Throw this {@code ParserException} as one of the 7 native JavaScript errors
-     */
-    public void throwAsEcmaException() {
-        throw ECMAErrors.asEcmaException(this);
-    }
-
-    /**
-     * Throw this {@code ParserException} as one of the 7 native JavaScript errors
-     * @param global global scope object
-     */
-    public void throwAsEcmaException(final Global global) {
-        throw ECMAErrors.asEcmaException(global, this);
-    }
 }
 

@@ -26,7 +26,6 @@
 package com.anatawa12.nashorn.internal.runtime.regexp;
 
 import java.util.regex.MatchResult;
-import com.anatawa12.nashorn.internal.runtime.BitVector;
 import com.anatawa12.nashorn.internal.runtime.ECMAErrors;
 import com.anatawa12.nashorn.internal.runtime.ParserException;
 
@@ -48,9 +47,6 @@ public abstract class RegExp {
 
     /** Multi-line flag for this regexp */
     private boolean multiline;
-
-    /** BitVector that keeps track of groups in negative lookahead */
-    protected BitVector groupsInNegativeLookahead;
 
     /**
      * Constructor.
@@ -106,15 +102,6 @@ public abstract class RegExp {
     }
 
     /**
-     * Get the global flag of this regular expression.
-     *
-     * @return the global flag
-     */
-    public boolean isGlobal() {
-        return global;
-    }
-
-    /**
      * Get the ignore-case flag of this regular expression.
      *
      * @return the ignore-case flag
@@ -131,24 +118,6 @@ public abstract class RegExp {
     public boolean isMultiline() {
         return multiline;
     }
-
-    /**
-     * Get a bitset indicating which of the groups in this regular expression are inside a negative lookahead.
-     *
-     * @return the groups-in-negative-lookahead bitset
-     */
-    public BitVector getGroupsInNegativeLookahead() {
-        return groupsInNegativeLookahead;
-    }
-
-    /**
-     * Match this regular expression against {@code str}, starting at index {@code start}
-     * and return a {@link MatchResult} with the result.
-     *
-     * @param str the string
-     * @return the matcher
-     */
-    public abstract RegExpMatcher match(String str);
 
     /**
      * Throw a regexp parser exception.

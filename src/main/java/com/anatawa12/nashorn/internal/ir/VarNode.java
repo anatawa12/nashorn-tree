@@ -132,11 +132,6 @@ public final class VarNode extends Statement implements Assignment<IdentNode> {
     }
 
     @Override
-    public VarNode setAssignmentDest(final IdentNode n) {
-        return setName(n);
-    }
-
-    @Override
     public Expression getAssignmentSource() {
         return isAssignment() ? getInit() : null;
     }
@@ -166,19 +161,6 @@ public final class VarNode extends Statement implements Assignment<IdentNode> {
     }
 
     /**
-     * Return the flags to use for symbols for this declaration.
-     * @return the symbol flags
-     */
-    public int getSymbolFlags() {
-        if (isLet()) {
-            return Symbol.IS_VAR | Symbol.IS_LET;
-        } else if (isConst()) {
-            return Symbol.IS_VAR | Symbol.IS_CONST;
-        }
-        return Symbol.IS_VAR;
-    }
-
-    /**
      * Does this variable declaration have an init value
      * @return true if an init exists, false otherwise
      */
@@ -205,17 +187,6 @@ public final class VarNode extends Statement implements Assignment<IdentNode> {
             return visitor.leaveVarNode(newThis);
         }
         return this;
-    }
-
-    @Override
-    public void toString(final StringBuilder sb, final boolean printType) {
-        sb.append(tokenType().getName()).append(' ');
-        name.toString(sb, printType);
-
-        if (init != null) {
-            sb.append(" = ");
-            init.toString(sb, printType);
-        }
     }
 
     /**

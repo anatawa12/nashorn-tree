@@ -75,11 +75,6 @@ public class DtoaBuffer {
     boolean isNegative = false;
 
     /**
-     * Maximal length of numbers converted by FastDtoa
-     */
-    public static final int kFastDtoaMaximalLength = FastDtoa.kFastDtoaMaximalLength;
-
-    /**
      * Create a buffer with the given capacity.
      * @param capacity the capacity of the buffer.
      */
@@ -109,14 +104,6 @@ public class DtoaBuffer {
      */
     public String getRawDigits() {
         return new String(chars, 0, length);
-    }
-
-    /**
-     * Get the position of the decimal point.
-     * @return the decimal point position
-     */
-    public int getDecimalPoint() {
-        return decimalPoint;
     }
 
     /**

@@ -25,7 +25,6 @@
 
 package com.anatawa12.nashorn.internal.ir;
 
-import com.anatawa12.nashorn.internal.codegen.types.Type;
 import com.anatawa12.nashorn.internal.ir.visitor.NodeVisitor;
 
 /**
@@ -35,7 +34,6 @@ public class JoinPredecessorExpression extends Expression implements JoinPredece
     private static final long serialVersionUID = 1L;
 
     private final Expression expression;
-    private final LocalVariableConversion conversion;
 
     /**
      * A no-arg constructor does not wrap any expression on its own, but can be used as a place to contain a local
@@ -52,26 +50,8 @@ public class JoinPredecessorExpression extends Expression implements JoinPredece
      * @param expression the expression to wrap
      */
     public JoinPredecessorExpression(final Expression expression) {
-        this(expression, null);
-    }
-
-    private JoinPredecessorExpression(final Expression expression, final LocalVariableConversion conversion) {
         super(expression == null ? 0L : expression.getToken(), expression == null ? 0 : expression.getStart(), expression == null ? 0 : expression.getFinish());
         this.expression = expression;
-        this.conversion = conversion;
-    }
-
-    @Override
-    public JoinPredecessor setLocalVariableConversion(final LexicalContext lc, final LocalVariableConversion conversion) {
-        if(conversion == this.conversion) {
-            return this;
-        }
-        return new JoinPredecessorExpression(expression, conversion);
-    }
-
-    @Override
-    public Type getType() {
-        return expression.getType();
     }
 
     @Override
@@ -101,12 +81,7 @@ public class JoinPredecessorExpression extends Expression implements JoinPredece
         if(expression == this.expression) {
             return this;
         }
-        return new JoinPredecessorExpression(expression, conversion);
-    }
-
-    @Override
-    public LocalVariableConversion getLocalVariableConversion() {
-        return conversion;
+        return new JoinPredecessorExpression(expression);
     }
 
     @Override
@@ -117,15 +92,4 @@ public class JoinPredecessorExpression extends Expression implements JoinPredece
         }
         return this;
     }
-
-    @Override
-    public void toString(final StringBuilder sb, final boolean printType) {
-        if(expression != null) {
-            expression.toString(sb, printType);
-        }
-        if(conversion != null) {
-            conversion.toString(sb);
-        }
-    }
-
 }

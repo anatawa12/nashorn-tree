@@ -40,15 +40,6 @@ public final class QuotedStringTokenizer {
     private final char quotes[];
 
     /**
-     * Constructor
-     *
-     * @param str string to tokenize
-     */
-    public QuotedStringTokenizer(final String str) {
-        this(str, " ");
-    }
-
-    /**
      * Create a quoted string tokenizer
      *
      * @param str

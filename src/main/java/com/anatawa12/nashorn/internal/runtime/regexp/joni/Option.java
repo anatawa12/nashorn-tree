@@ -137,11 +137,4 @@ public class Option {
         return (option & POSIX_REGION) != 0;
     }
 
-    /* OP_SET_OPTION is required for these options.  ??? */
-    //    public static boolean isDynamic(int option) {
-    //        return (option & (MULTILINE | IGNORECASE)) != 0;
-    //    }
-    public static boolean isDynamic(final int option) {
-        return false;
-    }
 }

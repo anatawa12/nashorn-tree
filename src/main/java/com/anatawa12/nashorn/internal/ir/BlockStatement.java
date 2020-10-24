@@ -85,11 +85,6 @@ public class BlockStatement extends Statement {
         return new BlockStatement(stmt.getLineNumber(), new Block(stmt.getToken(), finish, newStmts));
     }
 
-    @Override
-    public boolean isTerminal() {
-        return block.isTerminal();
-    }
-
     /**
      * Tells if this is a synthetic block statement or not.
      *
@@ -106,11 +101,6 @@ public class BlockStatement extends Statement {
         }
 
         return this;
-    }
-
-    @Override
-    public void toString(final StringBuilder sb, final boolean printType) {
-        block.toString(sb, printType);
     }
 
     /**

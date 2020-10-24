@@ -27,7 +27,7 @@ package com.anatawa12.nashorn.internal.ir;
 
 import java.util.Collections;
 import java.util.List;
-import com.anatawa12.nashorn.internal.codegen.types.Type;
+
 import com.anatawa12.nashorn.internal.ir.visitor.NodeVisitor;
 
 /**
@@ -46,11 +46,6 @@ public final class TemplateLiteral extends Expression {
     }
 
     @Override
-    public Type getType() {
-        return Type.STRING;
-    }
-
-    @Override
     public Node accept(final NodeVisitor<? extends LexicalContext> visitor) {
         if (visitor.enterTemplateLiteral(this)) {
             return visitor.leaveTemplateLiteral(this);
@@ -59,8 +54,7 @@ public final class TemplateLiteral extends Expression {
         return this;
     }
 
-    @Override
-    public void toString(final StringBuilder sb, final boolean printType) {
+    private void toString(final StringBuilder sb, final boolean printType) {
         for (final Expression expr : exprs) {
             sb.append(expr);
         }

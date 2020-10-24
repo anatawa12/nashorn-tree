@@ -28,7 +28,6 @@ package com.anatawa12.nashorn.internal.ir;
 import java.util.Collections;
 import java.util.List;
 
-import com.anatawa12.nashorn.internal.codegen.types.Type;
 import com.anatawa12.nashorn.internal.ir.visitor.NodeVisitor;
 
 /**
@@ -65,23 +64,4 @@ public final class ExpressionList extends Expression {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public Type getType() {
-        return null;
-    }
-
-    @Override
-    public void toString(final StringBuilder sb, final boolean printType) {
-        sb.append("(");
-        boolean first = true;
-        for (final Expression expression : expressions) {
-            if (first) {
-                first = false;
-            } else {
-                sb.append(", ");
-            }
-            expression.toString(sb, printType);
-        }
-        sb.append(")");
-    }
 }

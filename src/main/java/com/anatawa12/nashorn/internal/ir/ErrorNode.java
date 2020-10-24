@@ -25,7 +25,6 @@
 
 package com.anatawa12.nashorn.internal.ir;
 
-import com.anatawa12.nashorn.internal.codegen.types.Type;
 import com.anatawa12.nashorn.internal.ir.annotations.Immutable;
 import com.anatawa12.nashorn.internal.ir.visitor.NodeVisitor;
 
@@ -47,11 +46,6 @@ public final class ErrorNode extends Expression {
     }
 
     @Override
-    public Type getType() {
-        return Type.OBJECT;
-    }
-
-    @Override
     public Node accept(final NodeVisitor<? extends LexicalContext> visitor) {
         if (visitor.enterErrorNode(this)) {
             return visitor.leaveErrorNode(this);
@@ -60,8 +54,7 @@ public final class ErrorNode extends Expression {
         return this;
     }
 
-    @Override
-    public void toString(final StringBuilder sb, final boolean printType) {
+    private void toString(final StringBuilder sb, final boolean printType) {
         sb.append("<error>");
     }
 }

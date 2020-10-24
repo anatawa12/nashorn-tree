@@ -135,28 +135,21 @@ import com.anatawa12.nashorn.internal.ir.UnaryNode;
 import com.anatawa12.nashorn.internal.ir.VarNode;
 import com.anatawa12.nashorn.internal.ir.WhileNode;
 import com.anatawa12.nashorn.internal.ir.WithNode;
-import com.anatawa12.nashorn.internal.ir.debug.ASTWriter;
-import com.anatawa12.nashorn.internal.ir.debug.PrintVisitor;
 import com.anatawa12.nashorn.internal.ir.visitor.NodeVisitor;
-import com.anatawa12.nashorn.internal.runtime.Context;
 import com.anatawa12.nashorn.internal.runtime.ErrorManager;
 import com.anatawa12.nashorn.internal.runtime.JSErrorType;
 import com.anatawa12.nashorn.internal.runtime.ParserException;
-import com.anatawa12.nashorn.internal.runtime.RecompilableScriptFunctionData;
 import com.anatawa12.nashorn.internal.runtime.ScriptEnvironment;
 import com.anatawa12.nashorn.internal.runtime.ScriptFunctionData;
 import com.anatawa12.nashorn.internal.runtime.ScriptingFunctions;
 import com.anatawa12.nashorn.internal.runtime.Source;
-import com.anatawa12.nashorn.internal.runtime.Timing;
 import com.anatawa12.nashorn.internal.runtime.linker.NameCodec;
 import com.anatawa12.nashorn.internal.runtime.logging.DebugLogger;
 import com.anatawa12.nashorn.internal.runtime.logging.Loggable;
-import com.anatawa12.nashorn.internal.runtime.logging.Logger;
 
 /**
  * Builds the IR.
  */
-@Logger(name="parser")
 public class Parser extends AbstractParser implements Loggable {
     private static final String ARGUMENTS_NAME = CompilerConstants.ARGUMENTS_VAR.symbolName();
     private static final String CONSTRUCTOR_NAME = "constructor";
@@ -181,8 +174,6 @@ public class Parser extends AbstractParser implements Loggable {
 
     /** to receive line information from Lexer when scanning multine literals. */
     protected final Lexer.LineInfoReceiver lineInfoReceiver;
-
-    private RecompilableScriptFunctionData reparsedFunction;
 
     /**
      * Constructor
@@ -242,16 +233,6 @@ public class Parser extends AbstractParser implements Loggable {
         this.log = log == null ? DebugLogger.DISABLED_LOGGER : log;
     }
 
-    @Override
-    public DebugLogger getLogger() {
-        return log;
-    }
-
-    @Override
-    public DebugLogger initLogger(final Context context) {
-        return context.getLogger(this.getClass());
-    }
-
     /**
      * Sets the name for the first function. This is only used when reparsing anonymous functions to ensure they can
      * preserve their already assigned name, as that name doesn't appear in their source text.
@@ -259,16 +240,6 @@ public class Parser extends AbstractParser implements Loggable {
      */
     public void setFunctionName(final String name) {
         defaultNames.push(createIdentNode(0, 0, name));
-    }
-
-    /**
-     * Sets the {@link RecompilableScriptFunctionData} representing the function being reparsed (when this
-     * parser instance is used to reparse a previously parsed function, as part of its on-demand compilation).
-     * This will trigger various special behaviors, such as skipping nested function bodies.
-     * @param reparsedFunction the function being reparsed.
-     */
-    public void setReparsedFunction(final RecompilableScriptFunctionData reparsedFunction) {
-        this.reparsedFunction = reparsedFunction;
     }
 
     /**
@@ -303,20 +274,18 @@ public class Parser extends AbstractParser implements Loggable {
      * @param scriptName name for the script, given to the parsed FunctionNode
      * @param startPos start position in source
      * @param len length of parse
-     * @param reparseFlags flags provided by {@link RecompilableScriptFunctionData} as context for
+     * @param reparseFlags flags provided by RecompilableScriptFunctionData as context for
      * the code being reparsed. This allows us to recognize special forms of functions such
      * as property getters and setters or instances of ES6 method shorthand in object literals.
      *
      * @return function node resulting from successful parse
      */
     public FunctionNode parse(final String scriptName, final int startPos, final int len, final int reparseFlags) {
-        final boolean isTimingEnabled = env.isTimingEnabled();
-        final long t0 = isTimingEnabled ? System.nanoTime() : 0L;
         log.info(this, " begin for '", scriptName, "'");
 
         try {
             stream = new TokenStream();
-            lexer  = new Lexer(source, startPos, len, stream, scripting && !env._no_syntax_extensions, env._es6, reparsedFunction != null);
+            lexer  = new Lexer(source, startPos, len, stream, scripting && !env._no_syntax_extensions, env._es6, false);
             lexer.line = lexer.pendingLine = lineOffset + 1;
             line = lineOffset;
 
@@ -329,12 +298,7 @@ public class Parser extends AbstractParser implements Loggable {
             return null;
         } finally {
             final String end = this + " end '" + scriptName + "'";
-            if (isTimingEnabled) {
-                env._timing.accumulateTime(toString(), System.nanoTime() - t0);
-                log.info(end, "' in ", Timing.toMillisPrint(System.nanoTime() - t0), " ms");
-            } else {
-                log.info(end);
-            }
+            log.info(end);
         }
     }
 
@@ -352,7 +316,7 @@ public class Parser extends AbstractParser implements Loggable {
     public FunctionNode parseModule(final String moduleName, final int startPos, final int len) {
         try {
             stream = new TokenStream();
-            lexer  = new Lexer(source, startPos, len, stream, scripting && !env._no_syntax_extensions, env._es6, reparsedFunction != null);
+            lexer  = new Lexer(source, startPos, len, stream, scripting && !env._no_syntax_extensions, env._es6, false);
             lexer.line = lexer.pendingLine = lineOffset + 1;
             line = lineOffset;
 
@@ -374,85 +338,6 @@ public class Parser extends AbstractParser implements Loggable {
      */
     public FunctionNode parseModule(final String moduleName) {
         return parseModule(moduleName, 0, source.getLength());
-    }
-
-    /**
-     * Parse and return the list of function parameter list. A comma
-     * separated list of function parameter identifiers is expected to be parsed.
-     * Errors will be thrown and the error manager will contain information
-     * if parsing should fail. This method is used to check if parameter Strings
-     * passed to "Function" constructor is a valid or not.
-     *
-     * @return the list of IdentNodes representing the formal parameter list
-     */
-    public List<IdentNode> parseFormalParameterList() {
-        try {
-            stream = new TokenStream();
-            lexer  = new Lexer(source, stream, scripting && !env._no_syntax_extensions, env._es6);
-
-            scanFirstToken();
-
-            return formalParameterList(TokenType.EOF, false);
-        } catch (final Exception e) {
-            handleParseException(e);
-            return null;
-        }
-    }
-
-    /**
-     * Execute parse and return the resulting function node.
-     * Errors will be thrown and the error manager will contain information
-     * if parsing should fail. This method is used to check if code String
-     * passed to "Function" constructor is a valid function body or not.
-     *
-     * @return function node resulting from successful parse
-     */
-    public FunctionNode parseFunctionBody() {
-        try {
-            stream = new TokenStream();
-            lexer  = new Lexer(source, stream, scripting && !env._no_syntax_extensions, env._es6);
-            final int functionLine = line;
-
-            scanFirstToken();
-
-            // Make a fake token for the function.
-            final long functionToken = Token.toDesc(FUNCTION, 0, source.getLength());
-            // Set up the function to append elements.
-
-            final IdentNode ident = new IdentNode(functionToken, Token.descPosition(functionToken), PROGRAM.symbolName());
-            final ParserContextFunctionNode function = createParserContextFunctionNode(ident, functionToken, FunctionNode.Kind.NORMAL, functionLine, Collections.<IdentNode>emptyList());
-            lc.push(function);
-
-            final ParserContextBlockNode body = newBlock();
-
-            functionDeclarations = new ArrayList<>();
-            sourceElements(0);
-            addFunctionDeclarations(function);
-            functionDeclarations = null;
-
-            restoreBlock(body);
-            body.setFlag(Block.NEEDS_SCOPE);
-
-            final Block functionBody = new Block(functionToken, source.getLength() - 1,
-                body.getFlags() | Block.IS_SYNTHETIC, body.getStatements());
-            lc.pop(function);
-
-            expect(EOF);
-
-            final FunctionNode functionNode = createFunctionNode(
-                    function,
-                    functionToken,
-                    ident,
-                    Collections.<IdentNode>emptyList(),
-                    FunctionNode.Kind.NORMAL,
-                    functionLine,
-                    functionBody);
-            printAST(functionNode);
-            return functionNode;
-        } catch (final Exception e) {
-            handleParseException(e);
-            return null;
-        }
     }
 
     private void handleParseException(final Exception e) {
@@ -950,12 +835,6 @@ public class Parser extends AbstractParser implements Loggable {
                                     for (final IdentNode param : function.getParameters()) {
                                         verifyIdent(param, "function parameter");
                                     }
-                                }
-                            } else if (Context.DEBUG) {
-                                final int debugFlag = FunctionNode.getDirectiveFlag(directive);
-                                if (debugFlag != 0) {
-                                    final ParserContextFunctionNode function = lc.getCurrentFunction();
-                                    function.setDebugFlag(debugFlag);
                                 }
                             }
                         }
@@ -3795,7 +3674,7 @@ public class Parser extends AbstractParser implements Loggable {
             // are now allowed. But if we are reparsing then anon function
             // statement is possible - because it was used as function
             // expression in surrounding code.
-            if (env._no_syntax_extensions && reparsedFunction == null) {
+            if (env._no_syntax_extensions) {
                 expect(IDENT);
             }
         }
@@ -4167,7 +4046,7 @@ public class Parser extends AbstractParser implements Loggable {
             }
             assert functionNode != null;
             final int functionId = functionNode.getId();
-            parseBody = reparsedFunction == null || functionId <= reparsedFunction.getFunctionNodeId();
+            parseBody = true;
             // Nashorn extension: expression closures
             if ((!env._no_syntax_extensions || functionNode.getKind() == FunctionNode.Kind.ARROW) && type != LBRACE) {
                 /*
@@ -4249,68 +4128,13 @@ public class Parser extends AbstractParser implements Loggable {
             body.setStatements(Collections.<Statement>emptyList());
         }
 
-        if (reparsedFunction != null) {
-            // We restore the flags stored in the function's ScriptFunctionData that we got when we first
-            // eagerly parsed the code. We're doing it because some flags would be set based on the
-            // content of the function, or even content of its nested functions, most of which are normally
-            // skipped during an on-demand compilation.
-            final RecompilableScriptFunctionData data = reparsedFunction.getScriptFunctionData(functionNode.getId());
-            if (data != null) {
-                // Data can be null if when we originally parsed the file, we removed the function declaration
-                // as it was dead code.
-                functionNode.setFlag(data.getFunctionFlags());
-                // This compensates for missing markEval() in case the function contains an inner function
-                // that contains eval(), that now we didn't discover since we skipped the inner function.
-                if (functionNode.hasNestedEval()) {
-                    assert functionNode.hasScopeBlock();
-                    body.setFlag(Block.NEEDS_SCOPE);
-                }
-            }
-        }
         functionBody = new Block(bodyToken, bodyFinish, body.getFlags() | Block.IS_BODY, body.getStatements());
         return functionBody;
     }
 
     private boolean skipFunctionBody(final ParserContextFunctionNode functionNode) {
-        if (reparsedFunction == null) {
-            // Not reparsing, so don't skip any function body.
-            return false;
-        }
-        // Skip to the RBRACE of this function, and continue parsing from there.
-        final RecompilableScriptFunctionData data = reparsedFunction.getScriptFunctionData(functionNode.getId());
-        if (data == null) {
-            // Nested function is not known to the reparsed function. This can happen if the FunctionNode was
-            // in dead code that was removed. Both FoldConstants and Lower prune dead code. In that case, the
-            // FunctionNode was dropped before a RecompilableScriptFunctionData could've been created for it.
-            return false;
-        }
-        final ParserState parserState = (ParserState)data.getEndParserState();
-        assert parserState != null;
-
-        if (k < stream.last() && start < parserState.position && parserState.position <= Token.descPosition(stream.get(stream.last()))) {
-            // RBRACE is already in the token stream, so fast forward to it
-            for (; k < stream.last(); k++) {
-                final long nextToken = stream.get(k + 1);
-                if (Token.descPosition(nextToken) == parserState.position && Token.descType(nextToken) == RBRACE) {
-                    token = stream.get(k);
-                    type = Token.descType(token);
-                    next();
-                    assert type == RBRACE && start == parserState.position;
-                    return true;
-                }
-            }
-        }
-
-        stream.reset();
-        lexer = parserState.createLexer(source, lexer, stream, scripting && !env._no_syntax_extensions, env._es6);
-        line = parserState.line;
-        linePosition = parserState.linePosition;
-        // Doesn't really matter, but it's safe to treat it as if there were a semicolon before
-        // the RBRACE.
-        type = SEMICOLON;
-        scanFirstToken();
-
-        return true;
+        // Not reparsing, so don't skip any function body.
+        return false;
     }
 
     /**
@@ -4330,21 +4154,9 @@ public class Parser extends AbstractParser implements Loggable {
             this.linePosition = linePosition;
         }
 
-        Lexer createLexer(final Source source, final Lexer lexer, final TokenStream stream, final boolean scripting, final boolean es6) {
-            final Lexer newLexer = new Lexer(source, position, lexer.limit - position, stream, scripting, es6, true);
-            newLexer.restoreState(new Lexer.State(position, Integer.MAX_VALUE, line, -1, linePosition, SEMICOLON));
-            return newLexer;
-        }
     }
 
     private void printAST(final FunctionNode functionNode) {
-        if (functionNode.getDebugFlag(FunctionNode.DEBUG_PRINT_AST)) {
-            env.getErr().println(new ASTWriter(functionNode));
-        }
-
-        if (functionNode.getDebugFlag(FunctionNode.DEBUG_PRINT_PARSE)) {
-            env.getErr().println(new PrintVisitor(functionNode, true, false));
-        }
     }
 
     private void addFunctionDeclarations(final ParserContextFunctionNode functionNode) {

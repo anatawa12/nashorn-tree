@@ -25,11 +25,7 @@
 
 package com.anatawa12.nashorn.api.scripting;
 
-import java.util.ArrayList;
-import java.util.List;
-import com.anatawa12.nashorn.internal.codegen.CompilerConstants;
 import com.anatawa12.nashorn.internal.runtime.ECMAErrors;
-import com.anatawa12.nashorn.internal.runtime.ScriptObject;
 
 /**
  * This is base exception for all Nashorn exceptions. These originate from
@@ -59,8 +55,6 @@ public abstract class NashornException extends RuntimeException {
     private boolean lineAndFileNameUnknown;
     // script column number
     private int column;
-    // underlying ECMA error object - lazily initialized
-    private Object ecmaError;
 
     /**
      * Constructor to initialize error message, file name, line and column numbers.
@@ -88,20 +82,6 @@ public abstract class NashornException extends RuntimeException {
         this.fileName = fileName;
         this.line = line;
         this.column = column;
-    }
-
-    /**
-     * Constructor to initialize error message and cause exception.
-     *
-     * @param msg       exception message
-     * @param cause     exception cause
-     */
-    protected NashornException(final String msg, final Throwable cause) {
-        super(msg, cause == null ? null : cause);
-        // Hard luck - no column number info
-        this.column = -1;
-        // We can retrieve the line number and file name from the stack trace if needed
-        this.lineAndFileNameUnknown = true;
     }
 
     /**
@@ -160,126 +140,6 @@ public abstract class NashornException extends RuntimeException {
      */
     public final void setColumnNumber(final int column) {
         this.column = column;
-    }
-
-    /**
-     * Returns array javascript stack frames from the given exception object.
-     *
-     * @param exception exception from which stack frames are retrieved and filtered
-     * @return array of javascript stack frames
-     */
-    public static StackTraceElement[] getScriptFrames(final Throwable exception) {
-        final StackTraceElement[] frames = exception.getStackTrace();
-        final List<StackTraceElement> filtered = new ArrayList<>();
-        for (final StackTraceElement st : frames) {
-            if (ECMAErrors.isScriptFrame(st)) {
-                final String className = "<" + st.getFileName() + ">";
-                String methodName = st.getMethodName();
-                if (methodName.equals(CompilerConstants.PROGRAM.symbolName())) {
-                    methodName = "<program>";
-                } else {
-                    methodName = stripMethodName(methodName);
-                }
-
-                filtered.add(new StackTraceElement(className, methodName,
-                        st.getFileName(), st.getLineNumber()));
-            }
-        }
-        return filtered.toArray(new StackTraceElement[0]);
-    }
-
-    private static String stripMethodName(final String methodName) {
-        String name = methodName;
-
-        final int nestedSeparator = name.lastIndexOf(CompilerConstants.NESTED_FUNCTION_SEPARATOR.symbolName());
-        if (nestedSeparator >= 0) {
-            name = name.substring(nestedSeparator + 1);
-        }
-
-        final int idSeparator = name.indexOf(CompilerConstants.ID_FUNCTION_SEPARATOR.symbolName());
-        if (idSeparator >= 0) {
-            name = name.substring(0, idSeparator);
-        }
-
-        return name.contains(CompilerConstants.ANON_FUNCTION_PREFIX.symbolName()) ? "<anonymous>" : name;
-    }
-
-    /**
-     * Return a formatted script stack trace string with frames information separated by '\n'
-     *
-     * @param exception exception for which script stack string is returned
-     * @return formatted stack trace string
-     */
-    public static String getScriptStackString(final Throwable exception) {
-        final StringBuilder buf = new StringBuilder();
-        final StackTraceElement[] frames = getScriptFrames(exception);
-        for (final StackTraceElement st : frames) {
-            buf.append("\tat ");
-            buf.append(st.getMethodName());
-            buf.append(" (");
-            buf.append(st.getFileName());
-            buf.append(':');
-            buf.append(st.getLineNumber());
-            buf.append(")\n");
-        }
-        final int len = buf.length();
-        // remove trailing '\n'
-        if (len > 0) {
-            assert buf.charAt(len - 1) == '\n';
-            buf.deleteCharAt(len - 1);
-        }
-        return buf.toString();
-    }
-
-    /**
-     * Get the thrown object. Subclass responsibility
-     * @return thrown object
-     */
-    protected Object getThrown() {
-        return null;
-    }
-
-    /**
-     * Initialization function for ECMA errors. Stores the error
-     * in the ecmaError field of this class. It is only initialized
-     * once, and then reused
-     *
-     * @param global the global
-     * @return initialized exception
-     */
-    NashornException initEcmaError(final ScriptObject global) {
-        if (ecmaError != null) {
-            return this; // initialized already!
-        }
-
-        final Object thrown = getThrown();
-        if (thrown instanceof ScriptObject) {
-            setEcmaError(ScriptObjectMirror.wrap(thrown, global));
-        } else {
-            setEcmaError(thrown);
-        }
-
-        return this;
-    }
-
-    /**
-     * Return the underlying ECMA error object, if available.
-     *
-     * @return underlying ECMA Error object's mirror or whatever was thrown
-     *         from script such as a String, Number or a Boolean.
-     */
-    public Object getEcmaError() {
-        return ecmaError;
-    }
-
-    /**
-     * Return the underlying ECMA error object, if available.
-     *
-     * @param ecmaError underlying ECMA Error object's mirror or whatever was thrown
-     *         from script such as a String, Number or a Boolean.
-     */
-    public void setEcmaError(final Object ecmaError) {
-        this.ecmaError = ecmaError;
     }
 
     private void ensureLineAndFileName() {

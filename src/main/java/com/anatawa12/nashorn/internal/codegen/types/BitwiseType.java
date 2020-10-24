@@ -28,7 +28,7 @@ package com.anatawa12.nashorn.internal.codegen.types;
 /**
  * This class represents a numeric type that can be used for bit operations.
  */
-public abstract class BitwiseType extends NumericType implements BytecodeBitwiseOps {
+public abstract class BitwiseType extends NumericType {
     private static final long serialVersionUID = 1L;
 
     /**

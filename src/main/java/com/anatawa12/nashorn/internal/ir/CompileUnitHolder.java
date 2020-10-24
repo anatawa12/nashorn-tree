@@ -32,9 +32,4 @@ import com.anatawa12.nashorn.internal.codegen.CompileUnit;
  * {@link CompileUnit}
  */
 public interface CompileUnitHolder {
-    /**
-     * Return the compile unit held by this instance
-     * @return compile unit
-     */
-    public CompileUnit getCompileUnit();
 }

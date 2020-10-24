@@ -28,11 +28,9 @@ package com.anatawa12.nashorn.internal.runtime;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
@@ -47,20 +45,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.WeakHashMap;
-import com.anatawa12.nashorn.api.scripting.URLReader;
 import com.anatawa12.nashorn.internal.parser.Token;
-import com.anatawa12.nashorn.internal.runtime.logging.DebugLogger;
 import com.anatawa12.nashorn.internal.runtime.logging.Loggable;
-import com.anatawa12.nashorn.internal.runtime.logging.Logger;
 /**
  * Source objects track the origin of JavaScript entities.
  */
-@Logger(name="source")
 public final class Source implements Loggable {
     private static final int BUF_SIZE = 8 * 1024;
     private static final Cache CACHE = new Cache();
@@ -135,11 +128,6 @@ public final class Source implements Loggable {
             assert !(value.data instanceof RawData);
             put(key, new WeakReference<>(value));
         }
-    }
-
-    /* package-private */
-    DebuggerSupport.SourceInfo getSourceInfo() {
-        return new DebuggerSupport.SourceInfo(getName(), data.hashCode(),  data.url(), data.array());
     }
 
     // Wrapper to manage lazy loading
@@ -387,10 +375,6 @@ public final class Source implements Loggable {
     }
 
     private static void debug(final Object... msg) {
-        final DebugLogger logger = getLoggerStatic();
-        if (logger != null) {
-            logger.info(msg);
-        }
     }
 
     private char[] data() {
@@ -539,10 +523,6 @@ public final class Source implements Loggable {
      */
     public static Source sourceFor(final String name, final Reader reader) throws IOException {
         // Extract URL from URLReader to defer loading and reuse cached data if available.
-        if (reader instanceof URLReader) {
-            final URLReader urlReader = (URLReader) reader;
-            return sourceFor(name, urlReader.getURL(), urlReader.getCharset());
-        }
         return new Source(name, baseName(name), new RawData(reader));
     }
 
@@ -978,59 +958,4 @@ public final class Source implements Loggable {
         }
     }
 
-    private static DebugLogger getLoggerStatic() {
-        final Context context = Context.getContextTrustedOrNull();
-        return context == null ? null : context.getLogger(Source.class);
-    }
-
-    @Override
-    public DebugLogger initLogger(final Context context) {
-        return context.getLogger(this.getClass());
-    }
-
-    @Override
-    public DebugLogger getLogger() {
-        return initLogger(Context.getContextTrusted());
-    }
-
-    private File dumpFile(final File dirFile) {
-        final URL u = getURL();
-        final StringBuilder buf = new StringBuilder();
-        // make it unique by prefixing current date & time
-        buf.append(LocalDateTime.now().toString());
-        buf.append('_');
-        if (u != null) {
-            // make it a safe file name
-            buf.append(u.toString()
-                    .replace('/', '_')
-                    .replace('\\', '_'));
-        } else {
-            buf.append(getName());
-        }
-
-        return new File(dirFile, buf.toString());
-    }
-
-    void dump(final String dir) {
-        final File dirFile = new File(dir);
-        final File file = dumpFile(dirFile);
-        if (!dirFile.exists() && !dirFile.mkdirs()) {
-            debug("Skipping source dump for " + name);
-            return;
-        }
-
-        try (final FileOutputStream fos = new FileOutputStream(file)) {
-            final PrintWriter pw = new PrintWriter(fos);
-            pw.print(data.toString());
-            pw.flush();
-        } catch (final IOException ioExp) {
-            debug("Skipping source dump for " +
-                    name +
-                    ": " +
-                    ECMAErrors.getMessage(
-                        "io.error.cant.write",
-                        dir +
-                        " : " + ioExp.toString()));
-        }
-    }
 }

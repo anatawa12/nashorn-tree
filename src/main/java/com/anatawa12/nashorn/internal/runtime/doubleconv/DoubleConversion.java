@@ -114,35 +114,6 @@ public final class DoubleConversion {
     }
 
     /**
-     * Converts a double number to a string representation with a fixed number of digits.
-     *
-     * @param value number to convert
-     * @param precision number of digits to create
-     * @return formatted number
-     */
-    public static String toPrecision(final double value, final int precision) {
-        final DtoaBuffer buffer = new DtoaBuffer(precision);
-        final double absValue = Math.abs(value);
-
-        if (value < 0) {
-            buffer.isNegative = true;
-        }
-
-        if (value == 0) {
-            for (int i = 0; i < precision; i++) {
-                buffer.append('0');
-            }
-            buffer.decimalPoint = 1;
-
-        } else if (!fastDtoaCounted(absValue, precision, buffer)) {
-            buffer.reset();
-            bignumDtoa(absValue, DtoaMode.PRECISION, precision, buffer);
-        }
-
-        return buffer.format(DtoaMode.PRECISION, 0);
-    }
-
-    /**
      * Converts a double number to a string representation using the
      * {@code BignumDtoa} algorithm and the specified conversion mode
      * and number of digits.
@@ -174,23 +145,6 @@ public final class DoubleConversion {
         assert(!Double.isInfinite(v));
 
         return FastDtoa.grisu3(v, buffer);
-    }
-
-    /**
-     * Converts a double number to a string representation with the
-     * given number of digits using the {@code FastDtoa} algorithm.
-     *
-     * @param v number to convert
-     * @param precision number of digits to generate
-     * @param buffer buffer to use
-     * @return true if conversion succeeded
-     */
-    public static boolean fastDtoaCounted(final double v, final int precision, final DtoaBuffer buffer) {
-        assert(v > 0);
-        assert(!Double.isNaN(v));
-        assert(!Double.isInfinite(v));
-
-        return FastDtoa.grisu3Counted(v, precision, buffer);
     }
 
     /**

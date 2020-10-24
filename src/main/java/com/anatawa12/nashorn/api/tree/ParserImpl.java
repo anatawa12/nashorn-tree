@@ -31,14 +31,10 @@ import java.io.Reader;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Objects;
 import com.anatawa12.nashorn.api.scripting.NashornException;
-import com.anatawa12.nashorn.api.scripting.ScriptObjectMirror;
 import com.anatawa12.nashorn.internal.ir.FunctionNode;
-import com.anatawa12.nashorn.internal.runtime.Context;
 import com.anatawa12.nashorn.internal.runtime.ErrorManager;
-import com.anatawa12.nashorn.internal.runtime.JSType;
 import com.anatawa12.nashorn.internal.runtime.ParserException;
 import com.anatawa12.nashorn.internal.runtime.ScriptEnvironment;
 import com.anatawa12.nashorn.internal.runtime.Source;
@@ -126,22 +122,6 @@ final class ParserImpl implements Parser {
         return translate(makeParser(src, listener).parse());
     }
 
-    @Override
-    public CompilationUnitTree parse(final ScriptObjectMirror scriptObj, final DiagnosticListener listener) throws NashornException {
-        if (moduleMode) {
-            return parseModule(scriptObj, listener);
-        }
-        final Map<?, ?> map = Objects.requireNonNull(scriptObj);
-        if (map.containsKey("script") && map.containsKey("name")) {
-            final String script = JSType.toString(map.get("script"));
-            final String name = JSType.toString(map.get("name"));
-            final Source src = Source.sourceFor(name, script);
-            return translate(makeParser(src, listener).parse());
-        } else {
-            throw new IllegalArgumentException("can't find 'script' and 'name' properties");
-        }
-    }
-
     private CompilationUnitTree parseModule(final File file, final DiagnosticListener listener) throws IOException, NashornException {
         final Source src = Source.sourceFor(Objects.requireNonNull(file).getName(), file);
         return makeModule(src, listener);
@@ -167,25 +147,13 @@ final class ParserImpl implements Parser {
         return makeModule(src, listener);
     }
 
-    private CompilationUnitTree parseModule(final ScriptObjectMirror scriptObj, final DiagnosticListener listener) throws NashornException {
-        final Map<?, ?> map = Objects.requireNonNull(scriptObj);
-        if (map.containsKey("script") && map.containsKey("name")) {
-            final String script = JSType.toString(map.get("script"));
-            final String name = JSType.toString(map.get("name"));
-            final Source src = Source.sourceFor(name, script);
-            return makeModule(src, listener);
-        } else {
-            throw new IllegalArgumentException("can't find 'script' and 'name' properties");
-        }
-    }
-
     private CompilationUnitTree makeModule(final Source src, final DiagnosticListener listener) {
         final FunctionNode modFunc = makeParser(src, listener).parseModule(src.getName());
         return new IRTranslator().translate(modFunc);
     }
 
     private com.anatawa12.nashorn.internal.parser.Parser makeParser(final Source source, final DiagnosticListener listener) {
-        final ErrorManager errMgr = listener != null ? new ListenerErrorManager(listener) : new Context.ThrowErrorManager();
+        final ErrorManager errMgr = listener != null ? new ListenerErrorManager(listener) : new ErrorManager();
         return new com.anatawa12.nashorn.internal.parser.Parser(env, source, errMgr);
     }
 

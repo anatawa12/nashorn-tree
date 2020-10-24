@@ -25,8 +25,6 @@
 
 package com.anatawa12.nashorn.internal.runtime;
 
-import static com.anatawa12.nashorn.internal.runtime.ECMAErrors.rangeError;
-
 import java.io.PrintWriter;
 import com.anatawa12.nashorn.internal.parser.Token;
 
@@ -79,7 +77,7 @@ public class ErrorManager {
         }
 
         if (limit != 0 && count > limit) {
-            throw rangeError("too.many.errors", Integer.toString(limit));
+            throw new ParserException("Script contains too many errors: " + limit + " errors");
         }
     }
 
@@ -170,67 +168,4 @@ public class ErrorManager {
         checkLimit();
     }
 
-    /**
-     * Test to see if errors have occurred.
-     * @return True if errors.
-     */
-    public boolean hasErrors() {
-        return errors != 0;
-    }
-
-    /**
-     * Get the message limit
-     * @return max number of messages
-     */
-    public int getLimit() {
-        return limit;
-    }
-
-    /**
-     * Set the message limit
-     * @param limit max number of messages
-     */
-    public void setLimit(final int limit) {
-        this.limit = limit;
-    }
-
-    /**
-     * Check whether warnings should be treated like errors
-     * @return true if warnings should be treated like errors
-     */
-    public boolean isWarningsAsErrors() {
-        return warningsAsErrors;
-    }
-
-    /**
-     * Set warnings to be treated as errors
-     * @param warningsAsErrors true if warnings should be treated as errors, false otherwise
-     */
-    public void setWarningsAsErrors(final boolean warningsAsErrors) {
-        this.warningsAsErrors = warningsAsErrors;
-    }
-
-    /**
-     * Get the number of errors
-     * @return number of errors
-     */
-    public int getNumberOfErrors() {
-        return errors;
-    }
-
-    /**
-     * Get number of warnings
-     * @return number of warnings
-     */
-    public int getNumberOfWarnings() {
-        return warnings;
-    }
-
-    /**
-     * Clear warnings and error count.
-     */
-    void reset() {
-        warnings = 0;
-        errors = 0;
-    }
 }

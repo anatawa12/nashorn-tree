@@ -34,10 +34,6 @@ abstract class LexicalContextExpression extends Expression implements LexicalCon
         super(expr);
     }
 
-    LexicalContextExpression(final long token, final int start, final int finish) {
-        super(token, start, finish);
-    }
-
     LexicalContextExpression(final long token, final int finish) {
         super(token, finish);
     }

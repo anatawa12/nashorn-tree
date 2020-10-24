@@ -26,7 +26,6 @@
 package com.anatawa12.nashorn.internal.ir;
 
 import static com.anatawa12.nashorn.internal.parser.TokenType.RETURN;
-import static com.anatawa12.nashorn.internal.parser.TokenType.YIELD;
 
 import com.anatawa12.nashorn.internal.ir.annotations.Immutable;
 import com.anatawa12.nashorn.internal.ir.visitor.NodeVisitor;
@@ -59,11 +58,6 @@ public class ReturnNode extends Statement {
         this.expression = expression;
     }
 
-    @Override
-    public boolean isTerminal() {
-        return true;
-    }
-
     /**
      * Return true if is a RETURN node.
      * @return true if is RETURN node.
@@ -80,14 +74,6 @@ public class ReturnNode extends Statement {
         return expression != null;
     }
 
-    /**
-     * Return true if is a YIELD node.
-     * @return TRUE if is YIELD node.
-     */
-    public boolean isYield() {
-        return isTokenType(YIELD);
-    }
-
     @Override
     public Node accept(final NodeVisitor<? extends LexicalContext> visitor) {
         if (visitor.enterReturnNode(this)) {
@@ -100,15 +86,6 @@ public class ReturnNode extends Statement {
         return this;
     }
 
-
-    @Override
-    public void toString(final StringBuilder sb, final boolean printType) {
-        sb.append(isYield() ? "yield" : "return");
-        if (expression != null) {
-            sb.append(' ');
-            expression.toString(sb, printType);
-        }
-    }
 
     /**
      * Get the expression this node returns

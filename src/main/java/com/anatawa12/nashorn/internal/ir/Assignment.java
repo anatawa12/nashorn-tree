@@ -47,10 +47,4 @@ public interface Assignment<D extends Expression> {
      */
     public Expression getAssignmentSource();
 
-    /**
-     * Set assignment destination node.
-     * @param n the assignment destination node.
-     * @return a node equivalent to this one except for the requested change.
-     */
-    public Node setAssignmentDest(D n);
 }

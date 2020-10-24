@@ -83,8 +83,7 @@ public abstract class Statement extends Node implements Terminal {
      *
      * @return true if this node statement is terminal
      */
-    @Override
-    public boolean isTerminal() {
+    private boolean isTerminal() {
         return false;
     }
 

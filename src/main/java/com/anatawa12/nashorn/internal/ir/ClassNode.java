@@ -28,7 +28,6 @@ package com.anatawa12.nashorn.internal.ir;
 import java.util.Collections;
 import java.util.List;
 
-import com.anatawa12.nashorn.internal.codegen.types.Type;
 import com.anatawa12.nashorn.internal.ir.visitor.NodeVisitor;
 
 /**
@@ -122,11 +121,6 @@ public class ClassNode extends Expression {
     }
 
     @Override
-    public Type getType() {
-        return Type.OBJECT;
-    }
-
-    @Override
     public Node accept(final NodeVisitor<? extends LexicalContext> visitor) {
         if (visitor.enterClassNode(this)) {
             return visitor.leaveClassNode(this);
@@ -135,25 +129,4 @@ public class ClassNode extends Expression {
         return this;
     }
 
-    @Override
-    public void toString(final StringBuilder sb, final boolean printType) {
-        sb.append("class");
-        if (ident != null) {
-            sb.append(' ');
-            ident.toString(sb, printType);
-        }
-        if (classHeritage != null) {
-            sb.append(" extends");
-            classHeritage.toString(sb, printType);
-        }
-        sb.append(" {");
-        if (constructor != null) {
-            constructor.toString(sb, printType);
-        }
-        for (final PropertyNode classElement : classElements) {
-            sb.append(" ");
-            classElement.toString(sb, printType);
-        }
-        sb.append("}");
-    }
 }

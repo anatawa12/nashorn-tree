@@ -96,23 +96,6 @@ public final class CatchNode extends Statement {
         return this;
     }
 
-    @Override
-    public boolean isTerminal() {
-        return body.isTerminal();
-    }
-
-    @Override
-    public void toString(final StringBuilder sb, final boolean printTypes) {
-        sb.append(" catch (");
-        exception.toString(sb, printTypes);
-
-        if (exceptionCondition != null) {
-            sb.append(" if ");
-            exceptionCondition.toString(sb, printTypes);
-        }
-        sb.append(')');
-    }
-
     /**
      * Get the binding pattern representing the exception thrown
      *
@@ -120,16 +103,6 @@ public final class CatchNode extends Statement {
      */
     public Expression getException() {
         return exception;
-    }
-
-    /**
-     * Get the identifier representing the exception thrown
-     *
-     * @return the exception identifier
-     * @throws ClassCastException if exception set is not binding identifier
-     */
-    public IdentNode getExceptionIdentifier() {
-        return (IdentNode) exception;
     }
 
     /**

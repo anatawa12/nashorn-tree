@@ -31,7 +31,6 @@ import java.io.Reader;
 import java.net.URL;
 import java.nio.file.Path;
 import com.anatawa12.nashorn.api.scripting.NashornException;
-import com.anatawa12.nashorn.api.scripting.ScriptObjectMirror;
 
 /**
  * Represents nashorn ECMAScript parser instance.
@@ -107,18 +106,6 @@ public interface Parser {
      * @throws NashornException is thrown if no listener is supplied and parser encounters error
      */
     public CompilationUnitTree parse(final String name, String code, final DiagnosticListener listener) throws NashornException;
-
-    /**
-     * Parses the source from script object and returns compilation unit tree
-     *
-     * @param scriptObj script object whose script and name properties are used for script source
-     * @param listener to receive diagnostic messages from the parser. This can be null.
-     * if null is passed, a NashornException is thrown on the first parse error.
-     * @return compilation unit tree
-     * @throws NullPointerException if scriptObj is null
-     * @throws NashornException is thrown if no listener is supplied and parser encounters error
-     */
-    public CompilationUnitTree parse(final ScriptObjectMirror scriptObj, final DiagnosticListener listener) throws NashornException;
 
     /**
      * Factory method to create a new instance of Parser.

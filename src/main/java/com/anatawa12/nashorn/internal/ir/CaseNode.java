@@ -25,8 +25,6 @@
 
 package com.anatawa12.nashorn.internal.ir;
 
-import java.util.Collections;
-import java.util.List;
 import com.anatawa12.nashorn.internal.codegen.Label;
 import com.anatawa12.nashorn.internal.ir.annotations.Immutable;
 import com.anatawa12.nashorn.internal.ir.visitor.NodeVisitor;
@@ -49,11 +47,6 @@ public final class CaseNode extends Node implements JoinPredecessor, Labels, Ter
     private final Label entry;
 
     /**
-     * @see JoinPredecessor
-     */
-    private final LocalVariableConversion conversion;
-
-    /**
      * Constructors
      *
      * @param token    token
@@ -67,26 +60,14 @@ public final class CaseNode extends Node implements JoinPredecessor, Labels, Ter
         this.test  = test;
         this.body  = body;
         this.entry = new Label("entry");
-        this.conversion = null;
     }
 
-    CaseNode(final CaseNode caseNode, final Expression test, final Block body, final LocalVariableConversion conversion) {
+    CaseNode(final CaseNode caseNode, final Expression test, final Block body) {
         super(caseNode);
 
         this.test  = test;
         this.body  = body;
         this.entry = new Label(caseNode.entry);
-        this.conversion = conversion;
-    }
-
-    /**
-     * Is this a terminal case node, i.e. does it end control flow like having a throw or return?
-     *
-     * @return true if this node statement is terminal
-     */
-    @Override
-    public boolean isTerminal() {
-        return body.isTerminal();
     }
 
     /**
@@ -103,17 +84,6 @@ public final class CaseNode extends Node implements JoinPredecessor, Labels, Ter
         }
 
         return this;
-    }
-
-    @Override
-    public void toString(final StringBuilder sb, final boolean printTypes) {
-        if (test != null) {
-            sb.append("case ");
-            test.toString(sb, printTypes);
-            sb.append(':');
-        } else {
-            sb.append("default:");
-        }
     }
 
     /**
@@ -149,31 +119,14 @@ public final class CaseNode extends Node implements JoinPredecessor, Labels, Ter
         if (this.test == test) {
             return this;
         }
-        return new CaseNode(this, test, body, conversion);
-    }
-
-    @Override
-    public JoinPredecessor setLocalVariableConversion(final LexicalContext lc, final LocalVariableConversion conversion) {
-        if(this.conversion == conversion) {
-            return this;
-        }
-        return new CaseNode(this, test, body, conversion);
-    }
-
-    @Override
-    public LocalVariableConversion getLocalVariableConversion() {
-        return conversion;
+        return new CaseNode(this, test, body);
     }
 
     private CaseNode setBody(final Block body) {
         if (this.body == body) {
             return this;
         }
-        return new CaseNode(this, test, body, conversion);
+        return new CaseNode(this, test, body);
     }
 
-    @Override
-    public List<Label> getLabels() {
-        return Collections.unmodifiableList(Collections.singletonList(entry));
-    }
 }

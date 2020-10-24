@@ -59,7 +59,6 @@ class Parser extends Lexer {
     // onig_parse_make_tree
     protected final Node parse() {
         root = parseRegexp();
-        regex.numMem = env.numMem;
         return root;
     }
 

@@ -77,18 +77,6 @@ public final class WithNode extends LexicalContextStatement {
         return this;
     }
 
-    @Override
-    public boolean isTerminal() {
-        return body.isTerminal();
-    }
-
-    @Override
-    public void toString(final StringBuilder sb, final boolean printType) {
-        sb.append("with (");
-        expression.toString(sb, printType);
-        sb.append(')');
-    }
-
     /**
      * Get the body of this WithNode
      * @return the body

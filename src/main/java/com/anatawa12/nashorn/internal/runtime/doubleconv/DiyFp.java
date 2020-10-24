@@ -152,12 +152,6 @@ class DiyFp {
         this.e_ = exponent;
     }
 
-    static DiyFp normalize(final DiyFp a) {
-        final DiyFp result = new DiyFp(a.f_, a.e_);
-        result.normalize();
-        return result;
-    }
-
     long f() { return f_; }
     int e() { return e_; }
 

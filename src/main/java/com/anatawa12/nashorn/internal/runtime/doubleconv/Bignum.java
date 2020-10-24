@@ -95,19 +95,6 @@ class Bignum {
         return compare(a, b) < 0;
     }
 
-    // Returns a + b == c
-    static boolean plusEqual(final Bignum a, final Bignum b, final Bignum c) {
-        return plusCompare(a, b, c) == 0;
-    }
-    // Returns a + b <= c
-    static boolean plusLessEqual(final Bignum a, final Bignum b, final Bignum c) {
-        return plusCompare(a, b, c) <= 0;
-    }
-    // Returns a + b < c
-    static boolean plusLess(final Bignum a, final Bignum b, final Bignum c) {
-        return plusCompare(a, b, c) < 0;
-    }
-
     private void ensureCapacity(final int size) {
         if (size > kBigitCapacity) {
             throw new RuntimeException();

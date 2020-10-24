@@ -25,10 +25,8 @@
 
 package com.anatawa12.nashorn.internal.ir;
 
-import com.anatawa12.nashorn.internal.codegen.types.Type;
 import com.anatawa12.nashorn.internal.ir.annotations.Immutable;
 import com.anatawa12.nashorn.internal.ir.visitor.NodeVisitor;
-import com.anatawa12.nashorn.internal.parser.TokenType;
 
 /**
  * TernaryNode represent the ternary operator {@code ?:}. Note that for control-flow calculation reasons its branch
@@ -75,54 +73,6 @@ public final class TernaryNode extends Expression {
         }
 
         return this;
-    }
-
-    @Override
-    public void toString(final StringBuilder sb, final boolean printType) {
-        final TokenType tokenType  = tokenType();
-        final boolean   testParen  = tokenType.needsParens(getTest().tokenType(), true);
-        final boolean   trueParen  = tokenType.needsParens(getTrueExpression().tokenType(), false);
-        final boolean   falseParen = tokenType.needsParens(getFalseExpression().tokenType(), false);
-
-        if (testParen) {
-            sb.append('(');
-        }
-        getTest().toString(sb, printType);
-        if (testParen) {
-            sb.append(')');
-        }
-
-        sb.append(" ? ");
-
-        if (trueParen) {
-            sb.append('(');
-        }
-        getTrueExpression().toString(sb, printType);
-        if (trueParen) {
-            sb.append(')');
-        }
-
-        sb.append(" : ");
-
-        if (falseParen) {
-            sb.append('(');
-        }
-        getFalseExpression().toString(sb, printType);
-        if (falseParen) {
-            sb.append(')');
-        }
-    }
-
-    @Override
-    public boolean isLocal() {
-        return getTest().isLocal()
-                && getTrueExpression().isLocal()
-                && getFalseExpression().isLocal();
-    }
-
-    @Override
-    public Type getType() {
-        return Type.widestReturnType(getTrueExpression().getType(), getFalseExpression().getType());
     }
 
 

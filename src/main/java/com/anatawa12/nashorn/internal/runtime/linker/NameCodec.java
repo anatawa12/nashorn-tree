@@ -273,11 +273,6 @@ public final class NameCodec {
     private static final String NULL_ESCAPE = ESCAPE_C+""+NULL_ESCAPE_C;
 
     /**
-     * Canonical encoding for the empty name.
-     */
-    public static final String EMPTY_NAME =  new String(new char[] { ESCAPE_C, NULL_ESCAPE_C });
-
-    /**
      * Encodes ("mangles") an unencoded symbolic name.
      * @param name the symbolic name to mangle
      * @return the mangled form of the symbolic name.

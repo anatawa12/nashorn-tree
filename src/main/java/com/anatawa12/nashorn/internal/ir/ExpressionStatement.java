@@ -85,11 +85,6 @@ public final class ExpressionStatement extends Statement {
         return this;
     }
 
-    @Override
-    public void toString(final StringBuilder sb, final boolean printTypes) {
-        expression.toString(sb, printTypes);
-    }
-
     /**
      * Return the expression to be executed
      * @return the expression

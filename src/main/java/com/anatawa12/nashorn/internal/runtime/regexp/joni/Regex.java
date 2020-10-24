@@ -27,27 +27,11 @@ import com.anatawa12.nashorn.internal.runtime.regexp.joni.exception.ValueExcepti
 @SuppressWarnings("javadoc")
 public final class Regex implements RegexState {
 
-    int[] code;             /* compiled pattern */
-    int codeLength;
-    boolean stackNeeded;
-    Object[] operands;       /* e.g. shared CClassNode */
-    int operandLength;
-
-    int numMem;             /* used memory(...) num counted from 1 */
-    int numRepeat;          /* OP_REPEAT/OP_REPEAT_NG id-counter */
-    int numNullCheck;       /* OP_NULL_CHECK_START/END id counter */
     int captureHistory;     /* (?@...) flag (1-31) */
     int btMemStart;         /* need backtrack flag */
     int btMemEnd;           /* need backtrack flag */
 
-    int stackPopLevel;
-
-    int[] repeatRangeLo;
-    int[] repeatRangeHi;
-
     WarnCallback warnings;
-    MatcherFactory factory;
-    protected Analyser analyser;
 
     int options;
     final int caseFoldFlag;
@@ -70,41 +54,9 @@ public final class Regex implements RegexState {
     int dMin;                               /* min-distance of exact or map */
     int dMax;                               /* max-distance of exact or map */
 
-    char[][] templates;
-    int templateNum;
-
-    public Regex(final CharSequence cs) {
-        this(cs.toString());
-    }
-
-    public Regex(final String str) {
-        this(str.toCharArray(), 0, str.length(), 0);
-    }
-
-    public Regex(final char[] chars) {
-        this(chars, 0, chars.length, 0);
-    }
-
-    public Regex(final char[] chars, final int p, final int end) {
-        this(chars, p, end, 0);
-    }
-
-    public Regex(final char[] chars, final int p, final int end, final int option) {
-        this(chars, p, end, option, Syntax.RUBY, WarnCallback.DEFAULT);
-    }
-
     // onig_new
     public Regex(final char[] chars, final int p, final int end, final int option, final Syntax syntax) {
         this(chars, p, end, option, Config.ENC_CASE_FOLD_DEFAULT, syntax, WarnCallback.DEFAULT);
-    }
-
-    public Regex(final char[]chars, final int p, final int end, final int option, final WarnCallback warnings) {
-        this(chars, p, end, option, Syntax.RUBY, warnings);
-    }
-
-    // onig_new
-    public Regex(final char[] chars, final int p, final int end, final int option, final Syntax syntax, final WarnCallback warnings) {
-        this(chars, p, end, option, Config.ENC_CASE_FOLD_DEFAULT, syntax, warnings);
     }
 
     // onig_alloc_init
@@ -132,20 +84,8 @@ public final class Regex implements RegexState {
         this.warnings = null;
     }
 
-    public Matcher matcher(final char[] chars) {
-        return matcher(chars, 0, chars.length);
-    }
-
-    public Matcher matcher(final char[] chars, final int p, final int end) {
-        return factory.create(this, chars, p, end);
-    }
-
     public WarnCallback getWarnings() {
         return warnings;
-    }
-
-    public int numberOfCaptures() {
-        return numMem;
     }
 
     /* set skip map for Boyer-Moor search */
@@ -289,13 +229,4 @@ public final class Regex implements RegexState {
     public int getOptions() {
         return options;
     }
-
-    public String dumpTree() {
-        return analyser == null ? null : analyser.root.toString();
-    }
-
-    public String dumpByteCode() {
-        return new ByteCodePrinter(this).byteCodeListToString();
-    }
-
 }

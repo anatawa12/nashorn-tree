@@ -25,7 +25,6 @@
 
 package com.anatawa12.nashorn.internal.runtime.logging;
 
-import java.io.PrintWriter;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.Permissions;
@@ -38,12 +37,6 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.LoggingPermission;
-import com.anatawa12.nashorn.internal.objects.Global;
-import com.anatawa12.nashorn.internal.runtime.Context;
-import com.anatawa12.nashorn.internal.runtime.ScriptFunction;
-import com.anatawa12.nashorn.internal.runtime.ScriptObject;
-import com.anatawa12.nashorn.internal.runtime.ScriptRuntime;
-import com.anatawa12.nashorn.internal.runtime.events.RuntimeEvent;
 
 /**
  * Wrapper class for Logging system. This is how you are supposed to register a logger and use it
@@ -59,9 +52,7 @@ public final class DebugLogger {
 
     private int indent;
 
-    private static final int INDENT_SPACE = 4;
-
-    /** A quiet logger only logs {@link RuntimeEvent}s and does't output any text, regardless of level */
+    /** A quiet logger only logs RuntimeEvents and does't output any text, regardless of level */
     private final boolean isQuiet;
 
     /**
@@ -126,273 +117,11 @@ public final class DebugLogger {
     }
 
     /**
-     * Get the output writer for the logger. Loggers always default to
-     * stderr for output as they are used mainly to output debug info
-     *
-     * Can be inherited so this should not be static.
-     *
-     * @return print writer for log output.
-     */
-    @SuppressWarnings("static-method")
-    public PrintWriter getOutputStream() {
-        return Context.getCurrentErr();
-    }
-
-    /**
-     * Add quotes around a string
-     * @param str string
-     * @return quoted string
-     */
-    public static String quote(final String str) {
-        if (str.isEmpty()) {
-            return "''";
-        }
-
-        char startQuote = '\0';
-        char endQuote   = '\0';
-        char quote      = '\0';
-
-        if (str.startsWith("\\") || str.startsWith("\"")) {
-            startQuote = str.charAt(0);
-        }
-        if (str.endsWith("\\") || str.endsWith("\"")) {
-            endQuote = str.charAt(str.length() - 1);
-        }
-
-        if (startQuote == '\0' || endQuote == '\0') {
-            quote = startQuote == '\0' ? endQuote : startQuote;
-        }
-        if (quote == '\0') {
-            quote = '\'';
-        }
-
-        return (startQuote == '\0' ? quote : startQuote) + str + (endQuote == '\0' ? quote : endQuote);
-    }
-
-    /**
      * Check if the logger is enabled
      * @return true if enabled
      */
     public boolean isEnabled() {
         return isEnabled;
-    }
-
-    /**
-     * Check if the logger is enabled
-     * @param logger logger to check, null will return false
-     * @return true if enabled
-     */
-    public static boolean isEnabled(final DebugLogger logger) {
-        return logger != null && logger.isEnabled();
-    }
-
-    /**
-     * If you want to change the indent level of your logger, call indent with a new position.
-     * Positions start at 0 and are increased by one for a new "tab"
-     *
-     * @param pos indent position
-     */
-    public void indent(final int pos) {
-        if (isEnabled) {
-            indent += pos * INDENT_SPACE;
-        }
-    }
-
-    /**
-     * Add an indent position
-     */
-    public void indent() {
-        indent += INDENT_SPACE;
-    }
-
-    /**
-     * Unindent a position
-     */
-    public void unindent() {
-        indent -= INDENT_SPACE;
-        if (indent < 0) {
-            indent = 0;
-        }
-    }
-
-    private static void logEvent(final RuntimeEvent<?> event) {
-        if (event != null) {
-            final Global global = Context.getGlobal();
-            if (global.has("Debug")) {
-                final ScriptObject debug = (ScriptObject)global.get("Debug");
-                final ScriptFunction addRuntimeEvent = (ScriptFunction)debug.get("addRuntimeEvent");
-                ScriptRuntime.apply(addRuntimeEvent, debug, event);
-            }
-        }
-    }
-
-    /**
-     * Check if the event of given level will be logged.
-     * @see java.util.logging.Level
-     *
-     * @param level logging level
-     * @return true if event of given level will be logged.
-     */
-    public boolean isLoggable(final Level level) {
-        return logger.isLoggable(level);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level {@link java.util.logging.Level#FINEST} on this logger
-     * @param str the string to log
-     */
-    public void finest(final String str) {
-        log(Level.FINEST, str);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level {@link java.util.logging.Level#FINEST} on this logger
-     * @param event optional runtime event to log
-     * @param str the string to log
-     */
-    public void finest(final RuntimeEvent<?> event, final String str) {
-        finest(str);
-        logEvent(event);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#FINEST} on this logger
-     * @param objs object array to log - use this to perform lazy concatenation to avoid unconditional toString overhead
-     */
-    public void finest(final Object... objs) {
-        log(Level.FINEST, objs);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#FINEST} on this logger
-     * @param event optional runtime event to log
-     * @param objs object array to log - use this to perform lazy concatenation to avoid unconditional toString overhead
-     */
-    public void finest(final RuntimeEvent<?> event, final Object... objs) {
-        finest(objs);
-        logEvent(event);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#FINER} on this logger
-     * @param str the string to log
-     */
-    public void finer(final String str) {
-        log(Level.FINER, str);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#FINER} on this logger
-     * @param event optional runtime event to log
-     * @param str the string to log
-     */
-    public void finer(final RuntimeEvent<?> event, final String str) {
-        finer(str);
-        logEvent(event);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#FINER} on this logger
-     * @param objs object array to log - use this to perform lazy concatenation to avoid unconditional toString overhead
-     */
-    public void finer(final Object... objs) {
-        log(Level.FINER, objs);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#FINER} on this logger
-     * @param event optional runtime event to log
-     * @param objs object array to log - use this to perform lazy concatenation to avoid unconditional toString overhead
-     */
-    public void finer(final RuntimeEvent<?> event, final Object... objs) {
-        finer(objs);
-        logEvent(event);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#FINE} on this logger
-     * @param str the string to log
-     */
-    public void fine(final String str) {
-        log(Level.FINE, str);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#FINE} on this logger
-     * @param event optional runtime event to log
-     * @param str the string to log
-     */
-    public void fine(final RuntimeEvent<?> event, final String str) {
-        fine(str);
-        logEvent(event);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#FINE} on this logger
-     * @param objs object array to log - use this to perform lazy concatenation to avoid unconditional toString overhead
-     */
-    public void fine(final Object... objs) {
-        log(Level.FINE, objs);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#FINE} on this logger
-     * @param event optional runtime event to log
-     * @param objs object array to log - use this to perform lazy concatenation to avoid unconditional toString overhead
-     */
-    public void fine(final RuntimeEvent<?> event, final Object... objs) {
-        fine(objs);
-        logEvent(event);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#CONFIG} on this logger
-     * @param str the string to log
-     */
-    public void config(final String str) {
-        log(Level.CONFIG, str);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#CONFIG} on this logger
-     * @param event optional runtime event to log
-     * @param str the string to log
-     */
-    public void config(final RuntimeEvent<?> event, final String str) {
-        config(str);
-        logEvent(event);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#CONFIG} on this logger
-     * @param objs object array to log - use this to perform lazy concatenation to avoid unconditional toString overhead
-     */
-    public void config(final Object... objs) {
-        log(Level.CONFIG, objs);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#CONFIG} on this logger
-     * @param event optional runtime event to log
-     * @param objs object array to log - use this to perform lazy concatenation to avoid unconditional toString overhead
-     */
-    public void config(final RuntimeEvent<?> event, final Object... objs) {
-        config(objs);
-        logEvent(event);
     }
 
     /**
@@ -406,113 +135,11 @@ public final class DebugLogger {
 
     /**
      * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#INFO} on this logger
-     * @param event optional runtime event to log
-     * @param str the string to log
-     */
-    public void info(final RuntimeEvent<?> event, final String str) {
-        info(str);
-        logEvent(event);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
      * {@link java.util.logging.Level#FINE} on this logger
      * @param objs object array to log - use this to perform lazy concatenation to avoid unconditional toString overhead
      */
     public void info(final Object... objs) {
         log(Level.INFO, objs);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#FINE} on this logger
-     * @param event optional runtime event to log
-     * @param objs object array to log - use this to perform lazy concatenation to avoid unconditional toString overhead
-     */
-    public void info(final RuntimeEvent<?> event, final Object... objs) {
-        info(objs);
-        logEvent(event);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#WARNING} on this logger
-     * @param str the string to log
-     */
-    public void warning(final String str) {
-        log(Level.WARNING, str);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#WARNING} on this logger
-     * @param event optional runtime event to log
-     * @param str the string to log
-     */
-    public void warning(final RuntimeEvent<?> event, final String str) {
-        warning(str);
-        logEvent(event);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#FINE} on this logger
-     * @param objs object array to log - use this to perform lazy concatenation to avoid unconditional toString overhead
-     */
-    public void warning(final Object... objs) {
-        log(Level.WARNING, objs);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#FINE} on this logger
-     * @param objs object array to log - use this to perform lazy concatenation to avoid unconditional toString overhead
-     * @param event optional runtime event to log
-     */
-    public void warning(final RuntimeEvent<?> event, final Object... objs) {
-        warning(objs);
-        logEvent(event);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#SEVERE} on this logger
-     * @param str the string to log
-     */
-    public void severe(final String str) {
-        log(Level.SEVERE, str);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#SEVERE} on this logger
-     * @param str the string to log
-     * @param event optional runtime event to log
-     */
-    public void severe(final RuntimeEvent<?> event, final String str) {
-        severe(str);
-        logEvent(event);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#SEVERE} on this logger
-     * @param objs object array to log - use this to perform lazy concatenation to avoid unconditional toString overhead
-     */
-    public void severe(final Object... objs) {
-        log(Level.SEVERE, objs);
-    }
-
-    /**
-     * Shorthand for outputting a log string as log level
-     * {@link java.util.logging.Level#FINE} on this logger
-     * @param event optional runtime event to log
-     * @param objs object array to log - use this to perform lazy concatenation to avoid unconditional toString overhead
-     */
-    public void severe(final RuntimeEvent<?> event, final Object... objs) {
-        severe(objs);
-        logEvent(event);
     }
 
     /**

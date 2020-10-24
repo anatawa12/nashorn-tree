@@ -31,9 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.PatternSyntaxException;
-import com.anatawa12.nashorn.internal.parser.Lexer;
 import com.anatawa12.nashorn.internal.parser.Scanner;
-import com.anatawa12.nashorn.internal.runtime.BitVector;
 
 /**
  * Scan a JavaScript regexp, converting to Java regex if necessary.
@@ -158,20 +156,6 @@ final class RegExpScanner extends Scanner {
 
     String getJavaPattern() {
         return sb.toString();
-    }
-
-    BitVector getGroupsInNegativeLookahead() {
-        BitVector vec = null;
-        for (int i = 0; i < caps.size(); i++) {
-            final Capture cap = caps.get(i);
-            if (cap.negLookaheadLevel > 0) {
-                if (vec == null) {
-                    vec = new BitVector(caps.size() + 1);
-                }
-                vec.set(i + 1);
-            }
-        }
-        return vec;
     }
 
     /**
@@ -713,26 +697,8 @@ final class RegExpScanner extends Scanner {
         switch (ch0) {
         // java.util.regex requires translation of \s and \S to explicit character list
         case 's':
-            if (RegExpFactory.usesJavaUtilRegex()) {
-                sb.setLength(sb.length() - 1);
-                // No nested class required if we already are inside a character class
-                if (inCharClass) {
-                    sb.append(Lexer.getWhitespaceRegExp());
-                } else {
-                    sb.append('[').append(Lexer.getWhitespaceRegExp()).append(']');
-                }
-                skip(1);
-                return true;
-            }
             return commit(1);
         case 'S':
-            if (RegExpFactory.usesJavaUtilRegex()) {
-                sb.setLength(sb.length() - 1);
-                // In negative class we must use intersection to get double negation ("not anything else than space")
-                sb.append(inNegativeClass ? "&&[" : "[^").append(Lexer.getWhitespaceRegExp()).append(']');
-                skip(1);
-                return true;
-            }
             return commit(1);
         case 'd':
         case 'D':

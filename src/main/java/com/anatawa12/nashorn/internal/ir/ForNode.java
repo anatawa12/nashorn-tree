@@ -42,9 +42,6 @@ public final class ForNode extends LoopNode {
     /** Modify expression for an ordinary statement, or the source of the iterator in the for-in statement. */
     private final JoinPredecessorExpression modify;
 
-    /** Iterator symbol. */
-    private final Symbol iterator;
-
     /** Is this a normal for in loop? */
     public static final int IS_FOR_IN           = 1 << 0;
 
@@ -58,19 +55,6 @@ public final class ForNode extends LoopNode {
     public static final int PER_ITERATION_SCOPE = 1 << 3;
 
     private final int flags;
-
-    /**
-     * Constructs a ForNode
-     *
-     * @param lineNumber The line number of header
-     * @param token      The for token
-     * @param finish     The last character of the for node
-     * @param body       The body of the for node
-     * @param flags      The flags
-     */
-    public ForNode(final int lineNumber, final long token, final int finish, final Block body, final int flags){
-        this(lineNumber, token, finish, body, flags, null, null, null);
-    }
 
     /**
      * Constructor
@@ -89,22 +73,15 @@ public final class ForNode extends LoopNode {
         this.flags  = flags;
         this.init = init;
         this.modify = modify;
-        this.iterator = null;
     }
 
     private ForNode(final ForNode forNode, final Expression init, final JoinPredecessorExpression test,
-            final Block body, final JoinPredecessorExpression modify, final int flags,
-            final boolean controlFlowEscapes, final LocalVariableConversion conversion, final Symbol iterator) {
-        super(forNode, test, body, controlFlowEscapes, conversion);
+                    final Block body, final JoinPredecessorExpression modify, final int flags,
+                    final boolean controlFlowEscapes) {
+        super(forNode, test, body, controlFlowEscapes);
         this.init   = init;
         this.modify = modify;
         this.flags  = flags;
-        this.iterator = iterator;
-    }
-
-    @Override
-    public Node ensureUniqueLabels(final LexicalContext lc) {
-        return Node.replaceInLexicalContext(lc, this, new ForNode(this, init, test, body, modify, flags, controlFlowEscapes, conversion, iterator));
     }
 
     @Override
@@ -118,36 +95,6 @@ public final class ForNode extends LoopNode {
         }
 
         return this;
-    }
-
-    @Override
-    public void toString(final StringBuilder sb, final boolean printTypes) {
-        sb.append("for");
-        LocalVariableConversion.toString(conversion, sb).append(' ');
-
-        if (isForIn()) {
-            init.toString(sb, printTypes);
-            sb.append(" in ");
-            modify.toString(sb, printTypes);
-        } else if (isForOf()) {
-            init.toString(sb, printTypes);
-            sb.append(" of ");
-            modify.toString(sb, printTypes);
-        } else {
-            if (init != null) {
-                init.toString(sb, printTypes);
-            }
-            sb.append("; ");
-            if (test != null) {
-                test.toString(sb, printTypes);
-            }
-            sb.append("; ");
-            if (modify != null) {
-                modify.toString(sb, printTypes);
-            }
-        }
-
-        sb.append(')');
     }
 
     @Override
@@ -181,7 +128,7 @@ public final class ForNode extends LoopNode {
         if (this.init == init) {
             return this;
         }
-        return Node.replaceInLexicalContext(lc, this, new ForNode(this, init, test, body, modify, flags, controlFlowEscapes, conversion, iterator));
+        return Node.replaceInLexicalContext(lc, this, new ForNode(this, init, test, body, modify, flags, controlFlowEscapes));
     }
 
     /**
@@ -218,27 +165,6 @@ public final class ForNode extends LoopNode {
     }
 
     /**
-     * If this is a for in or for each construct, there is an iterator symbol
-     * @return the symbol for the iterator to be used, or null if none exists
-     */
-    public Symbol getIterator() {
-        return iterator;
-    }
-
-    /**
-     * Assign an iterator symbol to this ForNode. Used for for in and for each constructs
-     * @param lc the current lexical context
-     * @param iterator the iterator symbol
-     * @return a ForNode with the iterator set
-     */
-    public ForNode setIterator(final LexicalContext lc, final Symbol iterator) {
-        if (this.iterator == iterator) {
-            return this;
-        }
-        return Node.replaceInLexicalContext(lc, this, new ForNode(this, init, test, body, modify, flags, controlFlowEscapes, conversion, iterator));
-    }
-
-    /**
      * Get the modification expression for this ForNode
      * @return the modification expression
      */
@@ -256,7 +182,7 @@ public final class ForNode extends LoopNode {
         if (this.modify == modify) {
             return this;
         }
-        return Node.replaceInLexicalContext(lc, this, new ForNode(this, init, test, body, modify, flags, controlFlowEscapes, conversion, iterator));
+        return Node.replaceInLexicalContext(lc, this, new ForNode(this, init, test, body, modify, flags, controlFlowEscapes));
     }
 
     @Override
@@ -264,7 +190,7 @@ public final class ForNode extends LoopNode {
         if (this.test == test) {
             return this;
         }
-        return Node.replaceInLexicalContext(lc, this, new ForNode(this, init, test, body, modify, flags, controlFlowEscapes, conversion, iterator));
+        return Node.replaceInLexicalContext(lc, this, new ForNode(this, init, test, body, modify, flags, controlFlowEscapes));
     }
 
     @Override
@@ -277,7 +203,7 @@ public final class ForNode extends LoopNode {
         if (this.body == body) {
             return this;
         }
-        return Node.replaceInLexicalContext(lc, this, new ForNode(this, init, test, body, modify, flags, controlFlowEscapes, conversion, iterator));
+        return Node.replaceInLexicalContext(lc, this, new ForNode(this, init, test, body, modify, flags, controlFlowEscapes));
     }
 
     @Override
@@ -285,12 +211,7 @@ public final class ForNode extends LoopNode {
         if (this.controlFlowEscapes == controlFlowEscapes) {
             return this;
         }
-        return Node.replaceInLexicalContext(lc, this, new ForNode(this, init, test, body, modify, flags, controlFlowEscapes, conversion, iterator));
-    }
-
-    @Override
-    JoinPredecessor setLocalVariableConversionChanged(final LexicalContext lc, final LocalVariableConversion conversion) {
-        return Node.replaceInLexicalContext(lc, this, new ForNode(this, init, test, body, modify, flags, controlFlowEscapes, conversion, iterator));
+        return Node.replaceInLexicalContext(lc, this, new ForNode(this, init, test, body, modify, flags, controlFlowEscapes));
     }
 
     @Override

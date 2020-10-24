@@ -92,29 +92,12 @@ public class SplitNode extends LexicalContextStatement implements CompileUnitHol
         return this;
     }
 
-    @Override
-    public void toString(final StringBuilder sb, final boolean printType) {
-        sb.append("<split>(");
-        sb.append(compileUnit.getClass().getSimpleName());
-        sb.append(") ");
-        body.toString(sb, printType);
-    }
-
     /**
      * Get the name for this split node
      * @return name
      */
     public String getName() {
         return name;
-    }
-
-    /**
-     * Get the compile unit for this split node
-     * @return compile unit
-     */
-    @Override
-    public CompileUnit getCompileUnit() {
-        return compileUnit;
     }
 
     /**

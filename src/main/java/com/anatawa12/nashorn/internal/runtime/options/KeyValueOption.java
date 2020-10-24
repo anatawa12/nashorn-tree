@@ -51,24 +51,6 @@ public class KeyValueOption extends Option<String> {
         return Collections.unmodifiableMap(map);
     }
 
-    /**
-     * Check if the key value option has a value or if it has not
-     * been initialized
-     * @param key the key
-     * @return value, or null if not initialized
-     */
-    public boolean hasValue(final String key) {
-        return map != null && map.get(key) != null;
-    }
-
-    String getValue(final String key) {
-        if (map == null) {
-            return null;
-        }
-        final String val = map.get(key);
-        return "".equals(val) ? null : val;
-    }
-
     private void initialize() {
         if (getValue() == null) {
             return;

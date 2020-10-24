@@ -25,7 +25,6 @@
 
 package com.anatawa12.nashorn.internal.ir;
 
-import com.anatawa12.nashorn.internal.codegen.Label;
 import com.anatawa12.nashorn.internal.ir.annotations.Immutable;
 import com.anatawa12.nashorn.internal.ir.visitor.NodeVisitor;
 
@@ -48,10 +47,6 @@ public final class BreakNode extends JumpStatement {
         super(lineNumber, token, finish, labelName);
     }
 
-    private BreakNode(final BreakNode breakNode, final LocalVariableConversion conversion) {
-        super(breakNode, conversion);
-    }
-
     @Override
     public Node accept(final NodeVisitor<? extends LexicalContext> visitor) {
         if (visitor.enterBreakNode(this)) {
@@ -62,22 +57,8 @@ public final class BreakNode extends JumpStatement {
     }
 
     @Override
-    JumpStatement createNewJumpStatement(final LocalVariableConversion conversion) {
-        return new BreakNode(this, conversion);
-    }
-
-    @Override
     String getStatementName() {
         return "break";
     }
 
-    @Override
-    public BreakableNode getTarget(final LexicalContext lc) {
-        return lc.getBreakable(getLabelName());
-    }
-
-    @Override
-    Label getTargetLabel(final BreakableNode target) {
-        return target.getBreakLabel();
-    }
 }

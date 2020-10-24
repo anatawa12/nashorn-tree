@@ -55,8 +55,7 @@ public final class DebuggerNode extends Statement {
         return this;
     }
 
-    @Override
-    public void toString(final StringBuilder sb, final boolean printType) {
+    private void toString(final StringBuilder sb, final boolean printType) {
         sb.append("debugger");
     }
 }

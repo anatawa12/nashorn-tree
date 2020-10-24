@@ -64,7 +64,6 @@ class IeeeDouble {
     static long doubleToLong(final double d)   { return Double.doubleToRawLongBits(d); }
     static double longToDouble(final long d64) { return Double.longBitsToDouble(d64); }
 
-    static final long kSignMask = 0x8000000000000000L;
     static final long kExponentMask = 0x7FF0000000000000L;
     static final long kSignificandMask = 0x000FFFFFFFFFFFFFL;
     static final long kHiddenBit = 0x0010000000000000L;
@@ -73,9 +72,6 @@ class IeeeDouble {
 
     static private final int kExponentBias = 0x3FF + kPhysicalSignificandSize;
     static private final int kDenormalExponent = -kExponentBias + 1;
-    static private final int kMaxExponent = 0x7FF - kExponentBias;
-    static private final long kInfinity = 0x7FF0000000000000L;
-    static private final long kNaN = 0x7FF8000000000000L;
 
     static DiyFp asDiyFp(final long d64) {
         assert (!isSpecial(d64));
@@ -98,30 +94,6 @@ class IeeeDouble {
         e -= DiyFp.kSignificandSize - kSignificandSize;
 
         return new DiyFp(f, e);
-    }
-
-    // Returns the next greater double. Returns +infinity on input +infinity.
-    static double nextDouble(final long d64) {
-        if (d64 == kInfinity) return longToDouble(kInfinity);
-        if (sign(d64) < 0 && significand(d64) == 0) {
-            // -0.0
-            return 0.0;
-        }
-        if (sign(d64) < 0) {
-            return longToDouble(d64 - 1);
-        } else {
-            return longToDouble(d64 + 1);
-        }
-    }
-
-    static double previousDouble(final long d64) {
-        if (d64 == (kInfinity | kSignMask)) return -Infinity();
-        if (sign(d64) < 0) {
-            return longToDouble(d64 + 1);
-        } else {
-            if (significand(d64) == 0) return -0.0;
-            return longToDouble(d64 - 1);
-        }
     }
 
     static int exponent(final long d64) {
@@ -149,22 +121,6 @@ class IeeeDouble {
     // Hence only Infinity and NaN are special.
     static boolean isSpecial(final long d64) {
         return (d64 & kExponentMask) == kExponentMask;
-    }
-
-    static boolean isNaN(final long d64) {
-        return ((d64 & kExponentMask) == kExponentMask) &&
-                ((d64 & kSignificandMask) != 0L);
-    }
-
-
-    static boolean isInfinite(final long d64) {
-        return ((d64 & kExponentMask) == kExponentMask) &&
-                ((d64 & kSignificandMask) == 0L);
-    }
-
-
-    static int sign(final long d64) {
-        return (d64 & kSignMask) == 0L ? 1 : -1;
     }
 
 
@@ -204,28 +160,6 @@ class IeeeDouble {
 
     static double value(final long d64) {
         return longToDouble(d64);
-    }
-
-    // Returns the significand size for a given order of magnitude.
-    // If v = f*2^e with 2^p-1 <= f <= 2^p then p+e is v's order of magnitude.
-    // This function returns the number of significant binary digits v will have
-    // once it's encoded into a double. In almost all cases this is equal to
-    // kSignificandSize. The only exceptions are denormals. They start with
-    // leading zeroes and their effective significand-size is hence smaller.
-    static int significandSizeForOrderOfMagnitude(final int order) {
-        if (order >= (kDenormalExponent + kSignificandSize)) {
-            return kSignificandSize;
-        }
-        if (order <= kDenormalExponent) return 0;
-        return order - kDenormalExponent;
-    }
-
-    static double Infinity() {
-        return longToDouble(kInfinity);
-    }
-
-    static double NaN() {
-        return longToDouble(kNaN);
     }
 
 }

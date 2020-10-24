@@ -38,8 +38,6 @@ public final class ThrowNode extends Statement implements JoinPredecessor {
     /** Exception expression. */
     private final Expression expression;
 
-    private final LocalVariableConversion conversion;
-
     private final boolean isSyntheticRethrow;
 
     /**
@@ -55,20 +53,12 @@ public final class ThrowNode extends Statement implements JoinPredecessor {
         super(lineNumber, token, finish);
         this.expression = expression;
         this.isSyntheticRethrow = isSyntheticRethrow;
-        this.conversion = null;
     }
 
-    private ThrowNode(final ThrowNode node, final Expression expression, final boolean isSyntheticRethrow,
-            final LocalVariableConversion conversion) {
+    private ThrowNode(final ThrowNode node, final Expression expression, final boolean isSyntheticRethrow) {
         super(node);
         this.expression = expression;
         this.isSyntheticRethrow = isSyntheticRethrow;
-        this.conversion = conversion;
-    }
-
-    @Override
-    public boolean isTerminal() {
-        return true;
     }
 
     /**
@@ -82,18 +72,6 @@ public final class ThrowNode extends Statement implements JoinPredecessor {
         }
 
         return this;
-    }
-
-    @Override
-    public void toString(final StringBuilder sb, final boolean printType) {
-        sb.append("throw ");
-
-        if (expression != null) {
-            expression.toString(sb, printType);
-        }
-        if (conversion != null) {
-            conversion.toString(sb);
-        }
     }
 
     /**
@@ -113,30 +91,7 @@ public final class ThrowNode extends Statement implements JoinPredecessor {
         if (this.expression == expression) {
             return this;
         }
-        return new ThrowNode(this, expression, isSyntheticRethrow, conversion);
-    }
-
-    /**
-     * Is this a throw a synthetic rethrow in a synthetic catch-all block
-     * created when inlining finally statements? In that case we never
-     * wrap whatever is thrown into an ECMAException, just rethrow it.
-     * @return true if synthetic throw node
-     */
-    public boolean isSyntheticRethrow() {
-        return isSyntheticRethrow;
-    }
-
-    @Override
-    public JoinPredecessor setLocalVariableConversion(final LexicalContext lc, final LocalVariableConversion conversion) {
-        if(this.conversion == conversion) {
-            return this;
-        }
-        return new ThrowNode(this, expression, isSyntheticRethrow, conversion);
-    }
-
-    @Override
-    public LocalVariableConversion getLocalVariableConversion() {
-        return conversion;
+        return new ThrowNode(this, expression, isSyntheticRethrow);
     }
 
 }

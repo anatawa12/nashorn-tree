@@ -28,8 +28,7 @@ package com.anatawa12.nashorn.internal.ir;
 import java.util.Collections;
 import java.util.List;
 import java.util.RandomAccess;
-import com.anatawa12.nashorn.internal.codegen.types.Type;
-import com.anatawa12.nashorn.internal.ir.annotations.Ignore;
+
 import com.anatawa12.nashorn.internal.ir.annotations.Immutable;
 import com.anatawa12.nashorn.internal.ir.visitor.NodeVisitor;
 
@@ -43,10 +42,6 @@ public final class ObjectNode extends Expression implements LexicalContextNode, 
     /** Literal elements. */
     private final List<PropertyNode> elements;
 
-    /** Ranges for splitting large literals over multiple compile units in codegen. */
-    @Ignore
-    private final List<Splittable.SplitRange> splitRanges;
-
     /**
      * Constructor
      *
@@ -57,15 +52,12 @@ public final class ObjectNode extends Expression implements LexicalContextNode, 
     public ObjectNode(final long token, final int finish, final List<PropertyNode> elements) {
         super(token, finish);
         this.elements = elements;
-        this.splitRanges = null;
         assert elements instanceof RandomAccess : "Splitting requires random access lists";
     }
 
-    private ObjectNode(final ObjectNode objectNode, final List<PropertyNode> elements,
-                       final List<Splittable.SplitRange> splitRanges ) {
+    private ObjectNode(final ObjectNode objectNode, final List<PropertyNode> elements) {
         super(objectNode);
         this.elements = elements;
-        this.splitRanges = splitRanges;
     }
 
     @Override
@@ -81,33 +73,6 @@ public final class ObjectNode extends Expression implements LexicalContextNode, 
         return this;
     }
 
-    @Override
-    public Type getType() {
-        return Type.OBJECT;
-    }
-
-    @Override
-    public void toString(final StringBuilder sb, final boolean printType) {
-        sb.append('{');
-
-        if (!elements.isEmpty()) {
-            sb.append(' ');
-
-            boolean first = true;
-            for (final Node element : elements) {
-                if (!first) {
-                    sb.append(", ");
-                }
-                first = false;
-
-                element.toString(sb, printType);
-            }
-            sb.append(' ');
-        }
-
-        sb.append('}');
-    }
-
     /**
      * Get the elements of this literal node
      * @return a list of elements
@@ -120,31 +85,7 @@ public final class ObjectNode extends Expression implements LexicalContextNode, 
         if (this.elements == elements) {
             return this;
         }
-        return Node.replaceInLexicalContext(lc, this, new ObjectNode(this, elements, this.splitRanges));
-    }
-
-    /**
-     * Set the split ranges for this ObjectNode
-     * @see Splittable.SplitRange
-     * @param lc the lexical context
-     * @param splitRanges list of split ranges
-     * @return new or changed object node
-     */
-    public ObjectNode setSplitRanges(final LexicalContext lc, final List<Splittable.SplitRange> splitRanges) {
-        if (this.splitRanges == splitRanges) {
-            return this;
-        }
-        return Node.replaceInLexicalContext(lc, this, new ObjectNode(this, elements, splitRanges));
-    }
-
-    /**
-     * Get the split ranges for this ObjectNode, or null if the object is not split.
-     * @see Splittable.SplitRange
-     * @return list of split ranges
-     */
-    @Override
-    public List<Splittable.SplitRange> getSplitRanges() {
-        return splitRanges == null ? null : Collections.unmodifiableList(splitRanges);
+        return Node.replaceInLexicalContext(lc, this, new ObjectNode(this, elements));
     }
 
 }

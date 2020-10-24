@@ -25,9 +25,6 @@
 
 package com.anatawa12.nashorn.internal.ir;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import com.anatawa12.nashorn.internal.codegen.Label;
 
 /**
@@ -73,46 +70,16 @@ public abstract class LoopNode extends BreakableStatement {
      * @param test     new test
      * @param body     new body
      * @param controlFlowEscapes controlFlowEscapes
-     * @param conversion the local variable conversion carried by this loop node.
      */
     protected LoopNode(final LoopNode loopNode, final JoinPredecessorExpression test, final Block body,
-            final boolean controlFlowEscapes, final LocalVariableConversion conversion) {
-        super(loopNode, conversion);
+                       final boolean controlFlowEscapes) {
+        super(loopNode);
         this.continueLabel = new Label(loopNode.continueLabel);
         this.test = test;
         this.body = body;
         this.controlFlowEscapes = controlFlowEscapes;
     }
 
-    @Override
-    public abstract Node ensureUniqueLabels(final LexicalContext lc);
-
-    /**
-     * Does the control flow escape from this loop, i.e. through breaks or
-     * continues to outer loops?
-     * @return true if control flow escapes
-     */
-    public boolean controlFlowEscapes() {
-        return controlFlowEscapes;
-    }
-
-
-    @Override
-    public boolean isTerminal() {
-        if (!mustEnter()) {
-            return false;
-        }
-        //must enter but control flow may escape - then not terminal
-        if (controlFlowEscapes) {
-            return false;
-        }
-        //must enter, but body ends with return - then terminal
-        if (body.isTerminal()) {
-            return true;
-        }
-        //no breaks or returns, it is still terminal if we can never exit
-        return test == null;
-    }
 
     /**
      * Conservative check: does this loop have to be entered?
@@ -126,11 +93,6 @@ public abstract class LoopNode extends BreakableStatement {
      */
     public Label getContinueLabel() {
         return continueLabel;
-    }
-
-    @Override
-    public List<Label> getLabels() {
-        return Collections.unmodifiableList(Arrays.asList(breakLabel, continueLabel));
     }
 
     @Override

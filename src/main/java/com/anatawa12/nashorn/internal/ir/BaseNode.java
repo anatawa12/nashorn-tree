@@ -25,11 +25,8 @@
 
 package com.anatawa12.nashorn.internal.ir;
 
-import static com.anatawa12.nashorn.internal.runtime.UnwarrantedOptimismException.INVALID_PROGRAM_POINT;
-
 import com.anatawa12.nashorn.internal.codegen.types.Type;
 import com.anatawa12.nashorn.internal.ir.annotations.Immutable;
-import com.anatawa12.nashorn.internal.parser.TokenType;
 
 /**
  * IR base for accessing/indexing nodes.
@@ -38,7 +35,7 @@ import com.anatawa12.nashorn.internal.parser.TokenType;
  * @see IndexNode
  */
 @Immutable
-public abstract class BaseNode extends Expression implements FunctionCall, Optimistic {
+public abstract class BaseNode extends Expression implements Optimistic {
     private static final long serialVersionUID = 1L;
 
     /** Base Node. */
@@ -48,9 +45,6 @@ public abstract class BaseNode extends Expression implements FunctionCall, Optim
 
     /** Callsite type for this node, if overridden optimistically or conservatively depending on coercion */
     protected final Type type;
-
-    /** Program point id */
-    protected final int programPoint;
 
     /** Super property access. */
     private final boolean isSuper;
@@ -69,7 +63,6 @@ public abstract class BaseNode extends Expression implements FunctionCall, Optim
         this.base           = base;
         this.isFunction     = isFunction;
         this.type = null;
-        this.programPoint   = INVALID_PROGRAM_POINT;
         this.isSuper        = isSuper;
     }
 
@@ -79,15 +72,13 @@ public abstract class BaseNode extends Expression implements FunctionCall, Optim
      * @param base base
      * @param isFunction is this a function
      * @param callSiteType  the callsite type for this base node, either optimistic or conservative
-     * @param programPoint  program point id
      * @param isSuper is this a super property access
      */
-    protected BaseNode(final BaseNode baseNode, final Expression base, final boolean isFunction, final Type callSiteType, final int programPoint, final boolean isSuper) {
+    protected BaseNode(final BaseNode baseNode, final Expression base, final boolean isFunction, final Type callSiteType, final boolean isSuper) {
         super(baseNode);
         this.base           = base;
         this.isFunction     = isFunction;
         this.type = callSiteType;
-        this.programPoint   = programPoint;
         this.isSuper        = isSuper;
     }
 
@@ -99,49 +90,9 @@ public abstract class BaseNode extends Expression implements FunctionCall, Optim
         return base;
     }
 
-    @Override
     public boolean isFunction() {
         return isFunction;
     }
-
-    @Override
-    public Type getType() {
-        return type == null ? getMostPessimisticType() : type;
-    }
-
-    @Override
-    public int getProgramPoint() {
-        return programPoint;
-    }
-
-    @Override
-    public Type getMostOptimisticType() {
-        return Type.INT;
-    }
-
-    @Override
-    public Type getMostPessimisticType() {
-        return Type.OBJECT;
-    }
-
-    @Override
-    public boolean canBeOptimistic() {
-        return true;
-    }
-
-    /**
-     * Return true if this node represents an index operation normally represented as {@link IndexNode}.
-     * @return true if an index access.
-     */
-    public boolean isIndex() {
-        return isTokenType(TokenType.LBRACKET);
-    }
-
-    /**
-     * Mark this node as being the callee operand of a {@link CallNode}.
-     * @return a base node identical to this one in all aspects except with its function flag set.
-     */
-    public abstract BaseNode setIsFunction();
 
     /**
      * @return {@code true} if a SuperProperty access.

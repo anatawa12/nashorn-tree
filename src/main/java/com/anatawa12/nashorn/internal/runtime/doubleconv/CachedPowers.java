@@ -165,8 +165,6 @@ public class CachedPowers {
     static final double kD_1_LOG2_10 = 0.30102999566398114;  //  1 / lg(10)
     // Difference between the decimal exponents in the table above.
     static final int kDecimalExponentDistance = 8;
-    static final int kMinDecimalExponent = -348;
-    static final int kMaxDecimalExponent = 340;
 
     static int getCachedPowerForBinaryExponentRange(
             final int min_exponent,
@@ -185,20 +183,5 @@ public class CachedPowers {
         return cached_power.decimalExponent;
     }
 
-
-    static int getCachedPowerForDecimalExponent(final int requested_exponent,
-                                                final DiyFp power) {
-        assert (kMinDecimalExponent <= requested_exponent);
-        assert (requested_exponent < kMaxDecimalExponent + kDecimalExponentDistance);
-        final int index =
-                (requested_exponent + kCachedPowersOffset) / kDecimalExponentDistance;
-        final CachedPower cached_power = kCachedPowers[index];
-        power.setF(cached_power.significand);
-        power.setE(cached_power.binaryExponent);
-        final int found_exponent = cached_power.decimalExponent;
-        assert (found_exponent <= requested_exponent);
-        assert (requested_exponent < found_exponent + kDecimalExponentDistance);
-        return cached_power.decimalExponent;
-    }
 
 }

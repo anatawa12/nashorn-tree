@@ -43,8 +43,6 @@ public final class LabelNode extends LexicalContextStatement implements JoinPred
     /** Statements. */
     private final Block body;
 
-    private final LocalVariableConversion localVariableConversion;
-
     /**
      * Constructor
      *
@@ -59,19 +57,12 @@ public final class LabelNode extends LexicalContextStatement implements JoinPred
 
         this.labelName = labelName;
         this.body  = body;
-        this.localVariableConversion = null;
     }
 
-    private LabelNode(final LabelNode labelNode, final String labelName, final Block body, final LocalVariableConversion localVariableConversion) {
+    private LabelNode(final LabelNode labelNode, final String labelName, final Block body) {
         super(labelNode);
         this.labelName = labelName;
         this.body = body;
-        this.localVariableConversion = localVariableConversion;
-    }
-
-    @Override
-    public boolean isTerminal() {
-        return body.isTerminal();
     }
 
     @Override
@@ -83,7 +74,6 @@ public final class LabelNode extends LexicalContextStatement implements JoinPred
         return this;
     }
 
-    @Override
     public void toString(final StringBuilder sb, final boolean printType) {
         sb.append(labelName).append(':');
     }
@@ -106,7 +96,7 @@ public final class LabelNode extends LexicalContextStatement implements JoinPred
         if (this.body == body) {
             return this;
         }
-        return Node.replaceInLexicalContext(lc, this, new LabelNode(this, labelName, body, localVariableConversion));
+        return Node.replaceInLexicalContext(lc, this, new LabelNode(this, labelName, body));
     }
 
     /**
@@ -117,16 +107,4 @@ public final class LabelNode extends LexicalContextStatement implements JoinPred
         return labelName;
     }
 
-    @Override
-    public LocalVariableConversion getLocalVariableConversion() {
-        return localVariableConversion;
-    }
-
-    @Override
-    public LabelNode setLocalVariableConversion(final LexicalContext lc, final LocalVariableConversion localVariableConversion) {
-        if(this.localVariableConversion == localVariableConversion) {
-            return this;
-        }
-        return Node.replaceInLexicalContext(lc, this, new LabelNode(this, labelName, body, localVariableConversion));
-    }
 }

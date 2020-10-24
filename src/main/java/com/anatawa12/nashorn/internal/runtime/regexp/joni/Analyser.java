@@ -60,13 +60,6 @@ final class Analyser extends Parser {
 
         reset();
 
-        regex.numMem = 0;
-        regex.numRepeat = 0;
-        regex.numNullCheck = 0;
-        //regex.repeatRangeAlloc = 0;
-        regex.repeatRangeLo = null;
-        regex.repeatRangeHi = null;
-
         parse();
 
         if (Config.DEBUG_PARSE_TREE_RAW && Config.DEBUG_PARSE_TREE) {
@@ -101,27 +94,6 @@ final class Analyser extends Parser {
         }
 
         env.memNodes = null;
-
-        new ArrayCompiler(this).compile();
-
-        if (regex.numRepeat != 0 || regex.btMemEnd != 0) {
-            regex.stackPopLevel = StackPopLevel.ALL;
-        } else {
-            if (regex.btMemStart != 0) {
-                regex.stackPopLevel = StackPopLevel.MEM_START;
-            } else {
-                regex.stackPopLevel = StackPopLevel.FREE;
-            }
-        }
-
-        if (Config.DEBUG_COMPILE) {
-            Config.log.println("stack used: " + regex.stackNeeded);
-            if (Config.USE_STRING_TEMPLATES) {
-                Config.log.print("templates: " + regex.templateNum + "\n");
-            }
-            Config.log.println(new ByteCodePrinter(regex).byteCodeListToString());
-
-        } // DEBUG_COMPILE
     }
 
     private void swap(final Node a, final Node b) {

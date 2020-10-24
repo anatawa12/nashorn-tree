@@ -287,54 +287,6 @@ public final class Options {
     }
 
     /**
-     * Set an option as a boolean value, overwriting an existing state if one exists
-     *
-     * @param key    option key
-     * @param option option
-     */
-    public void set(final String key, final boolean option) {
-        set(key, new Option<>(option));
-    }
-
-    /**
-     * Set an option as a String value, overwriting an existing state if one exists
-     *
-     * @param key    option key
-     * @param option option
-     */
-    public void set(final String key, final String option) {
-        set(key, new Option<>(option));
-    }
-
-    /**
-     * Return the user arguments to the program, i.e. those trailing "--" after
-     * the filename
-     *
-     * @return a list of user arguments
-     */
-    public List<String> getArguments() {
-        return Collections.unmodifiableList(this.arguments);
-    }
-
-    /**
-     * Return the JavaScript files passed to the program
-     *
-     * @return a list of files
-     */
-    public List<String> getFiles() {
-        return Collections.unmodifiableList(files);
-    }
-
-    /**
-     * Return the option templates for all the valid option supported.
-     *
-     * @return a collection of OptionTemplate objects.
-     */
-    public static Collection<OptionTemplate> getValidOptions() {
-        return Collections.unmodifiableCollection(validOptions);
-    }
-
-    /**
      * Make sure a key is fully qualified for table lookups
      *
      * @param shortKey key for option

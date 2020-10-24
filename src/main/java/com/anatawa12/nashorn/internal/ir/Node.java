@@ -124,56 +124,11 @@ public abstract class Node implements Cloneable, Serializable {
     }
 
     /**
-     * For reference copies - ensure that labels in the copy node are unique
-     * using an appropriate copy constructor
-     * @param lc lexical context
-     * @return new node or same of no labels
-     */
-    public Node ensureUniqueLabels(final LexicalContext lc) {
-        return this;
-    }
-
-    /**
      * Provides a means to navigate the IR.
      * @param visitor Node visitor.
      * @return node the node or its replacement after visitation, null if no further visitations are required
      */
     public abstract Node accept(NodeVisitor<? extends LexicalContext> visitor);
-
-    @Override
-    public final String toString() {
-        return toString(true);
-    }
-
-    /*
-     * Return String representation of this Node.
-     * @param includeTypeInfo include type information or not
-     */
-    public final String toString(final boolean includeTypeInfo) {
-        final StringBuilder sb = new StringBuilder();
-        toString(sb, includeTypeInfo);
-        return sb.toString();
-    }
-
-    /**
-     * String conversion helper. Fills a {@link StringBuilder} with the
-     * string version of this node
-     *
-     * @param sb a StringBuilder
-     */
-    public void toString(final StringBuilder sb) {
-        toString(sb, true);
-    }
-
-    /**
-     * Print logic that decides whether to show the optimistic type
-     * or not - for example it should not be printed after just parse,
-     * when it hasn't been computed, or has been set to a trivially provable
-     * value
-     * @param sb   string builder
-     * @param printType print type?
-     */
-    public abstract void toString(final StringBuilder sb, final boolean printType);
 
     /**
      * Get the finish position for this node in the source string

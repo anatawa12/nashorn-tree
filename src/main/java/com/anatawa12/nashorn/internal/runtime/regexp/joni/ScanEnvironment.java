@@ -19,7 +19,6 @@
  */
 package com.anatawa12.nashorn.internal.runtime.regexp.joni;
 
-import static com.anatawa12.nashorn.internal.runtime.regexp.joni.BitStatus.bsClear;
 import com.anatawa12.nashorn.internal.runtime.regexp.joni.ast.Node;
 import com.anatawa12.nashorn.internal.runtime.regexp.joni.exception.ErrorMessages;
 import com.anatawa12.nashorn.internal.runtime.regexp.joni.exception.InternalException;
@@ -52,11 +51,6 @@ public final class ScanEnvironment {
     }
 
     public void clear() {
-        captureHistory = bsClear();
-        btMemStart = bsClear();
-        btMemEnd = bsClear();
-        backrefedMem = bsClear();
-
         numMem = 0;
         memNodes = null;
     }

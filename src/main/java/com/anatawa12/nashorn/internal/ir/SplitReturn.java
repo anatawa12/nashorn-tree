@@ -25,7 +25,6 @@
 
 package com.anatawa12.nashorn.internal.ir;
 
-import com.anatawa12.nashorn.internal.ir.annotations.Ignore;
 import com.anatawa12.nashorn.internal.ir.visitor.NodeVisitor;
 
 /**
@@ -38,7 +37,6 @@ public final class SplitReturn extends Statement {
     private static final long serialVersionUID = 1L;
 
     /** The sole instance of this AST node. */
-    @Ignore
     public static final SplitReturn INSTANCE = new SplitReturn();
 
     private SplitReturn() {
@@ -46,18 +44,8 @@ public final class SplitReturn extends Statement {
     }
 
     @Override
-    public boolean isTerminal() {
-        return true;
-    }
-
-    @Override
     public Node accept(final NodeVisitor<? extends LexicalContext> visitor) {
         return visitor.enterSplitReturn(this) ? visitor.leaveSplitReturn(this) : this;
-    }
-
-    @Override
-    public void toString(final StringBuilder sb, final boolean printType) {
-        sb.append(":splitreturn;");
     }
 
     private Object readResolve() {

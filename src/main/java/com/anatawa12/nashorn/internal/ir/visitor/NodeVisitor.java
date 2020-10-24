@@ -41,12 +41,10 @@ import com.anatawa12.nashorn.internal.ir.ErrorNode;
 import com.anatawa12.nashorn.internal.ir.ExpressionStatement;
 import com.anatawa12.nashorn.internal.ir.ForNode;
 import com.anatawa12.nashorn.internal.ir.FunctionNode;
-import com.anatawa12.nashorn.internal.ir.GetSplitState;
 import com.anatawa12.nashorn.internal.ir.IdentNode;
 import com.anatawa12.nashorn.internal.ir.IfNode;
 import com.anatawa12.nashorn.internal.ir.IndexNode;
 import com.anatawa12.nashorn.internal.ir.JoinPredecessorExpression;
-import com.anatawa12.nashorn.internal.ir.JumpToInlinedFinally;
 import com.anatawa12.nashorn.internal.ir.LabelNode;
 import com.anatawa12.nashorn.internal.ir.LexicalContext;
 import com.anatawa12.nashorn.internal.ir.LiteralNode;
@@ -55,7 +53,6 @@ import com.anatawa12.nashorn.internal.ir.ObjectNode;
 import com.anatawa12.nashorn.internal.ir.PropertyNode;
 import com.anatawa12.nashorn.internal.ir.ReturnNode;
 import com.anatawa12.nashorn.internal.ir.RuntimeNode;
-import com.anatawa12.nashorn.internal.ir.SetSplitState;
 import com.anatawa12.nashorn.internal.ir.SplitNode;
 import com.anatawa12.nashorn.internal.ir.SplitReturn;
 import com.anatawa12.nashorn.internal.ir.SwitchNode;
@@ -439,26 +436,6 @@ public abstract class NodeVisitor<T extends LexicalContext> {
     }
 
     /**
-     * Callback for entering a {@link GetSplitState}.
-     *
-     * @param  getSplitState the get split state expression
-     * @return true if traversal should continue and node children be traversed, false otherwise
-     */
-    public boolean enterGetSplitState(final GetSplitState getSplitState) {
-        return enterDefault(getSplitState);
-    }
-
-    /**
-     * Callback for leaving a {@link GetSplitState}.
-     *
-     * @param  getSplitState the get split state expression
-     * @return processed node, which will replace the original one, or the original node
-     */
-    public Node leaveGetSplitState(final GetSplitState getSplitState) {
-        return leaveDefault(getSplitState);
-    }
-
-    /**
      * Callback for entering an IdentNode
      *
      * @param  identNode the node
@@ -516,26 +493,6 @@ public abstract class NodeVisitor<T extends LexicalContext> {
      */
     public Node leaveIndexNode(final IndexNode indexNode) {
         return leaveDefault(indexNode);
-    }
-
-    /**
-     * Callback for entering a JumpToInlinedFinally
-     *
-     * @param  jumpToInlinedFinally the node
-     * @return true if traversal should continue and node children be traversed, false otherwise
-     */
-    public boolean enterJumpToInlinedFinally(final JumpToInlinedFinally jumpToInlinedFinally) {
-        return enterDefault(jumpToInlinedFinally);
-    }
-
-    /**
-     * Callback for leaving a JumpToInlinedFinally
-     *
-     * @param  jumpToInlinedFinally the node
-     * @return processed node, which will replace the original one, or the original node
-     */
-    public Node leaveJumpToInlinedFinally(final JumpToInlinedFinally jumpToInlinedFinally) {
-        return leaveDefault(jumpToInlinedFinally);
     }
 
     /**
@@ -656,26 +613,6 @@ public abstract class NodeVisitor<T extends LexicalContext> {
      */
     public Node leaveRuntimeNode(final RuntimeNode runtimeNode) {
         return leaveDefault(runtimeNode);
-    }
-
-    /**
-     * Callback for entering a {@link SetSplitState}.
-     *
-     * @param  setSplitState the set split state statement
-     * @return true if traversal should continue and node children be traversed, false otherwise
-     */
-    public boolean enterSetSplitState(final SetSplitState setSplitState) {
-        return enterDefault(setSplitState);
-    }
-
-    /**
-     * Callback for leaving a {@link SetSplitState}.
-     *
-     * @param  setSplitState the set split state expression
-     * @return processed node, which will replace the original one, or the original node
-     */
-    public Node leaveSetSplitState(final SetSplitState setSplitState) {
-        return leaveDefault(setSplitState);
     }
 
     /**
