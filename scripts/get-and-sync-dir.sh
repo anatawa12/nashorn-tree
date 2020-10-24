@@ -96,6 +96,7 @@ function add_hash_to_reset_sh() {
 
 add_hash_to_reset_sh upstream-master
 add_hash_to_reset_sh scripts-master
+add_hash_to_reset_sh changed-master
 add_hash_to_reset_sh master
 
 git checkout upstream-master
@@ -110,7 +111,7 @@ write_commit_hash
 cd "$REPO_DIR"
 git add "."
 git commit -m "sync with $COMMIT_HASH" --allow-empty
-git checkout -b "automatic-changes"
+git checkout -b automatic-changes
 
 move_module_info
 
@@ -130,7 +131,11 @@ cd "$REPO_DIR"
 git add "."
 git commit -m "remove deprecated flag"
 
-git checkout master
+git checkout changed-master
 git merge --no-ff automatic-changes
+git branch -D automatic-changes
+
+git checkout master
+git merge --no-ff changed-master
 
 rm -rf "$WORKDIR"
