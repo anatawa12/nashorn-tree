@@ -3,5 +3,5 @@
  * http://creativecommons.org/publicdomain/zero/1.0/deed.ja
  */
 
-rootProject.name = "nashron-tree-test"
+rootProject.name = "nashorn-tree"
 
