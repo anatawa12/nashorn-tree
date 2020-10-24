@@ -89,6 +89,15 @@ function write_commit_hash() {
     echo "$COMMIT_HASH" >> "$REPO_DIR/remote-commit-hash.txt"
 }
 
+echo > "reset.sh"
+function add_hash_to_reset_sh() {
+    echo "git update-ref refs/heads/$1 $(git rev-parse "$1")" >> "reset.sh"
+}
+
+add_hash_to_reset_sh upstream-master
+add_hash_to_reset_sh scripts-master
+add_hash_to_reset_sh master
+
 git checkout upstream-master
 git merge scripts-master
 rm -rf "$SRC_DIR"
