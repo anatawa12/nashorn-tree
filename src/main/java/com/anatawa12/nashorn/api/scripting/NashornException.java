@@ -42,12 +42,11 @@ import com.anatawa12.nashorn.internal.runtime.ScriptObject;
  * interface. In these cases, user code will get an instance of this or
  * implementation defined subclass.
  *
- * @deprecated Nashorn JavaScript script engine and APIs, and the jjs tool
- * are deprecated with the intent to remove them in a future release.
+// * @deprecated Nashorn JavaScript script engine and APIs, and the jjs tool
+// * are deprecated with the intent to remove them in a future release.
  *
  * @since 1.8u40
  */
-@Deprecated(since="11", forRemoval=true)
 @SuppressWarnings("serial")
 public abstract class NashornException extends RuntimeException {
     private static final long serialVersionUID = 1L;

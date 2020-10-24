@@ -67,12 +67,11 @@ import com.anatawa12.nashorn.internal.runtime.options.Options;
  * {@link Invocable} interfaces, allowing for efficient precompilation and repeated execution of scripts.
  * @see NashornScriptEngineFactory
  *
- * @deprecated Nashorn JavaScript script engine and APIs, and the jjs tool
- * are deprecated with the intent to remove them in a future release.
+// * @deprecated Nashorn JavaScript script engine and APIs, and the jjs tool
+// * are deprecated with the intent to remove them in a future release.
  *
  * @since 1.8u40
  */
-@Deprecated(since="11", forRemoval=true)
 public final class NashornScriptEngine extends AbstractScriptEngine implements Compilable, Invocable {
     /**
      * Key used to associate Nashorn global object mirror with arbitrary Bindings instance.
